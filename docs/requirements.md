@@ -20,7 +20,7 @@ Los coordinadores de brigadas comunitarias, de salud o eventos institucionales n
 | RF-02 | Guardar evidencia asociada a un evento (nota y/o foto) | La evidencia queda ligada al evento y visible al consultarlo | Semana 5 |
 | RF-03 | Consultar la lista de asistentes esperados antes de salir al evento | Con conexión, la lista se carga y coincide con la fuente del coordinador | Semana 6 |
 | RF-04 | Guardar localmente registros sin conexión y sincronizarlos al recuperar señal | Un registro creado offline aparece sincronizado al recuperar conexión | Futuro |
-| RF-05 | Consolidar el reporte de asistencia y evidencias de un evento | El reporte muestra todos los registros del evento seleccionado | Semana 9 |
+| RF-05 | Consolidar el reporte de asistencia y evidencias de un evento | El reporte muestra todos los registros del evento seleccionado, incluyendo registros duplicados si dos coordinadores registraron el mismo evento (no se descartan automáticamente) | Semana 9 |
 
 ## 4. Requisitos no funcionales
 
