@@ -2,8 +2,8 @@
 
 > Un solo archivo compartido. Repitan la sección siguiente por cada integrante; cada persona escribe y explica su propia evidencia. Se aceptan evidencias previas equivalentes. El SHA final se entrega en Classroom después del último commit, para evitar modificar el commit que se está identificando.
 
-- Grupo y equipo:
-- Repositorio del equipo:
+- Grupo y equipo: "B" - Equipo 10
+- Repositorio del equipo: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10.git
 
 ## Integrante: escribir nombre
 
