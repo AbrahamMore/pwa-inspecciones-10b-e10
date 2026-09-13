@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Inspecciones de laboratorio",
   description: "Proyecto base de Aplicaciones Web Progresivas",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   themeColor: "#0f172a"
 };
 
