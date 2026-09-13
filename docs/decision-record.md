@@ -2,11 +2,11 @@
 
 ## Estado
 
-Propuesta y aceptada por el equipo — 6 de septiembre de 2026.
+Propuesta y aceptada por el equipo — corrección aplicada el 13 de septiembre de 2026 para alinear con el proyecto oficial (inspecciones y mantenimiento de laboratorios UTT).
 
 ## Contexto y restricciones
 
-BitacoraLab está dirigido a coordinadores de brigadas y eventos que registran asistencia y evidencia en campo (Usuarios y Escenarios, sección 2 de `requirements.md`), a menudo en sitios sin conexión estable (Escenario 2). El proyecto usa exclusivamente dispositivos móviles en campo y datos sintéticos (sección 5 de `requirements.md`). El curso fija Next.js como stack base, por lo que la decisión debe evaluarse dentro de ese margen, no como elección libre de tecnología.
+El proyecto registra inspecciones y mantenimiento de laboratorios de la UTT (Usuarios y Escenarios, sección 2 de `requirements.md`), realizadas por técnicos dentro de las instalaciones, donde la conectividad puede ser intermitente (Escenario 2). El proyecto usa exclusivamente datos sintéticos (sección 5 de `requirements.md`) y dispositivos móviles/tablet en campo. El curso fija Next.js como stack base, por lo que la decisión se evalúa dentro de ese margen, no como elección libre de tecnología.
 
 ## Alternativas consideradas
 
@@ -24,12 +24,12 @@ La operación offline requiere diseñar almacenamiento local y lógica de sincro
 
 ## Decisión
 
-Se mantiene la estrategia PWA fijada para el curso. Es la opción que mejor responde a las restricciones de BitacoraLab: instalación sin fricción, capacidad de funcionar (con trabajo adicional) sin conexión, y continuidad con el starter Next.js ya provisto. Si en el futuro el proyecto requiriera acceso profundo y constante a hardware del dispositivo (por ejemplo, GPS de alta precisión en segundo plano), una app nativa sería preferible; por ahora esa necesidad no está identificada en los escenarios definidos. Se conserva el stack Next.js para esta entrega; esta comparación no implica cambiar de stack ni construir las cuatro alternativas.
+Se mantiene la estrategia PWA fijada para el curso. Es la opción que mejor responde a las restricciones del proyecto de inspecciones de laboratorio: instalación sin fricción para el personal técnico, capacidad de funcionar (con trabajo adicional) sin conexión dentro de zonas del plantel con señal inestable, y continuidad con el starter Next.js ya provisto. Si en el futuro el proyecto requiriera acceso profundo y constante a hardware del dispositivo (por ejemplo, escaneo de códigos QR de equipo con cámara en segundo plano), una app nativa sería preferible; por ahora esa necesidad no está identificada en los escenarios definidos. Se conserva el stack Next.js para esta entrega.
 
 ## Consecuencias y riesgos
 
-Conservar datos de asistencia y evidencia en el dispositivo permite continuidad del registro sin conexión, pero exige diseñar más adelante el manejo de conflictos al reconectar (por ejemplo, si dos coordinadores registran el mismo evento). Elegir PWA reduce el costo de mantenimiento frente a una app nativa, a cambio de aceptar límites de acceso a funciones avanzadas del dispositivo que, por ahora, el proyecto no necesita.
+Conservar los registros de inspección en el dispositivo permite continuidad del trabajo sin conexión, pero exige diseñar más adelante el manejo de conflictos al reconectar (por ejemplo, si dos técnicos registran hallazgos del mismo laboratorio el mismo día). Elegir PWA reduce el costo de mantenimiento frente a una app nativa, a cambio de aceptar límites de acceso a funciones avanzadas del dispositivo que, por ahora, el proyecto no necesita.
 
 ## Validación
 
-En una semana posterior se probará, con un dispositivo real en modo avión, que un registro de asistencia creado sin conexión (RF-04) se guarda localmente y se sincroniza correctamente al recuperar señal. Hasta ese momento, no se afirma que la sincronización offline ya esté validada ni implementada.
+En una semana posterior se probará, con un dispositivo real en modo avión, que un registro de inspección creado sin conexión (RF-04) se guarda localmente y se sincroniza correctamente al recuperar señal. Hasta ese momento, no se afirma que la sincronización offline ya esté validada ni implementada.b
