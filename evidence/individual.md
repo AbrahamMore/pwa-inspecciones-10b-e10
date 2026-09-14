@@ -14,7 +14,18 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creac
 - **Qué verifica esa prueba y qué no verifica:** Verifica que el proyecto instala correctamente sus dependencias, que la prueba proporcionada por el starter pasa, y que el build de Next.js compila sin errores. No verifica la calidad ni coherencia del análisis en `requirements.md` o `decision-record.md` — eso requiere revisión humana del contenido, no un resultado técnico automático.
 - **Limitación, dificultad o riesgo que identifiqué:** El requisito RF-04 (guardado offline y sincronización) todavía no está implementado, solo documentado como meta futura; aún no se ha probado en un dispositivo real sin conexión.
 - **Uso de IA:** Usé Claude para estructurar y redactar el contenido de `docs/requirements.md` y `docs/decision-record.md` a partir de las decisiones que yo tomé (definición del problema de inspecciones y mantenimiento de laboratorios UTT, escenario de conectividad intermitente, elección de PWA sobre las otras alternativas). Revisé el contenido generado antes de subirlo al repositorio.
-##
+#### 
+### Semana 2
+
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Construcción del shell instalable de la aplicación: creé `public/manifest.webmanifest`, actualicé `src/app/layout.tsx` para enlazarlo, extraje `src/components/app-shell.tsx` como componente de navegación reutilizable, y reescribí `src/app/page.tsx` para manejar estados de carga, error y vacío en vez de mostrar los datos directo. También corregí una advertencia de build moviendo `themeColor` del export `metadata` al export `viewport`, como lo requiere Next.js 14. Enlace: [pega aquí el link a tu commit]
+
+- **Decisión que puedo explicar y por qué:** Separé la navegación fija (`app-shell.tsx`) del contenido de la pantalla (`page.tsx`) en vez de dejar todo junto como en la Semana 1. Esto permite reutilizar el shell en futuras pantallas del proyecto sin duplicar el header y footer, y aísla la lógica de estados (carga/error/vacío) en el componente que realmente cambia semana a semana.
+- **Comando o prueba proporcionada que ejecuté:** `npm ci`, `npm run dev`, `npm run verify`.
+- **Resultado real que observé:** `npm ci` instaló correctamente (2 vulnerabilidades reportadas en la auditoría, no resueltas para no modificar dependencias sin decisión del equipo). `npm run verify` terminó con `starter.spec.mjs: PASS`, `manifest.spec.ts: PASS`, build de Next.js compilado exitosamente sin advertencias de `themeColor`, y `Verificación técnica: pass`.
+- **Qué verifica esa prueba y qué no verifica:** Verifica que el shell compila, que el manifest tiene los campos mínimos y que las pruebas proporcionadas y agregadas por el equipo pasan. No verifica que la app sea instalable de verdad en un dispositivo real, ni que los íconos referenciados en el manifest existan como archivos físicos todavía.
+- **Limitación, dificultad o riesgo que identifiqué:** Los íconos (`/icons/icon-192.png`, etc.) están referenciados en el manifest pero aún no existen como archivos PNG reales; el manifest es válido como documento, pero el navegador no podrá mostrar el ícono de instalación hasta agregarlos. El estado de "error" en `page.tsx` está implementado pero no se puede disparar todavía, porque los datos son locales y no dependen de una fuente que pueda fallar.
+- **Uso de IA:** Usé Claude para estructurar `app-shell.tsx`, `page.tsx` (con los tres estados) y el manifest, y para explicarme la corrección del warning de `themeColor`. Revisé y ejecuté yo mismo cada comando antes de subir los cambios.
+
 
 ## Integrante: Josmar Olivera Perez
 
@@ -34,6 +45,18 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Valid
 - **Limitación, dificultad o riesgo que identifiqué:** La verificación técnica terminó correctamente, pero el proyecto todavía corresponde al alcance inicial de la Semana 1 y las funcionalidades PWA futuras no están implementadas. Además, `npm ci` mostró dos vulnerabilidades de severidad alta durante la auditoría de dependencias; no ejecuté `npm audit fix --force` para evitar modificar las dependencias del starter sin una decisión del equipo.
 
 - **Uso de IA:** Usé ChatGPT y Codex como apoyo para analizar la estructura del proyecto, comprender los requisitos de la actividad y organizar la evidencia. La ejecución de los comandos y la comprobación del funcionamiento de la aplicación fueron realizadas y verificadas directamente en mi entorno local.
+
+### Semana 2
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Actualicé `README.md`, extendiendo el contenido de la Semana 1 (sin borrarlo) para documentar el avance de la Semana 2: mención del nuevo test `tests/manifest.spec.ts`, la carpeta `src/components/` con el shell instalable, el archivo `public/manifest.webmanifest`, y la aclaración de que offline y sincronización siguen pendientes para semanas posteriores. Enlace: [pega aquí el link a tu commit]
+
+- **Decisión que puedo explicar y por qué:** Decidí extender el README en vez de reemplazarlo, porque el proyecto es acumulativo (un solo repositorio durante todo el cuatrimestre); borrar la documentación de la Semana 1 para dejar solo la Semana 2 habría ocultado avance real del equipo ya evaluado.
+- **Comando o prueba proporcionada que ejecuté:** `npm ci`, `npm run dev`, para confirmar que las instrucciones del README siguen siendo correctas tras los cambios del shell.
+- **Resultado real que observé:** El proyecto instaló y corrió sin errores en mi entorno, confirmando que las instrucciones de instalación y ejecución documentadas en el README siguen siendo válidas después de los cambios de esta semana.
+- **Qué verifica esa prueba y qué no verifica:** Confirma que las instrucciones del README (instalación, ejecución) siguen funcionando en un entorno distinto. No verifica automáticamente que el contenido del README esté completo o bien redactado — eso requiere revisión humana del texto.
+- **Limitación, dificultad o riesgo que identifiqué:** El README documenta el estado actual del proyecto, pero deberá actualizarse de nuevo en cada semana futura conforme se agreguen funcionalidades (offline, sincronización); si el equipo olvida extenderlo, quedaría desactualizado frente al código real.
+- **Uso de IA:** Usé Claude para redactar la actualización del README a partir de los cambios reales que el equipo hizo esta semana (manifest, app-shell, estados de carga/error/vacío). Revisé el contenido y confirmé que las instrucciones siguen funcionando antes de hacer commit y push.
+
+
 
 ## Integrante: Diana Laura Olmos Antonio
 ### Semana 1

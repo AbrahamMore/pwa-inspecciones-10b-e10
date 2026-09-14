@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   title: "Inspecciones de laboratorio",
   description: "Proyecto base de Aplicaciones Web Progresivas",
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.webmanifest"
+};
+
+export const viewport: Viewport = {
   themeColor: "#0f172a"
 };
 
