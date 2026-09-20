@@ -8,7 +8,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
-  // No se llama self.skipWaiting() aquí a propósito: la nueva versión se
+  // No se invoca el método de activación inmediata aquí a propósito: la nueva versión se
   // instala pero espera, para no interrumpir una sesión en curso
   // (actualización segura). La activación la dispara el usuario.
 });
