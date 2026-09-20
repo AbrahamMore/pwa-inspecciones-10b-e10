@@ -26,6 +26,17 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Const
 - **Limitación, dificultad o riesgo que identifiqué:** Los íconos (`/icons/icon-192.png`, etc.) están referenciados en el manifest pero aún no existen como archivos PNG reales; el manifest es válido como documento, pero el navegador no podrá mostrar el ícono de instalación hasta agregarlos. El estado de "error" en `page.tsx` está implementado pero no se puede disparar todavía, porque los datos son locales y no dependen de una fuente que pueda fallar.
 - **Uso de IA:** Usé Claude para estructurar `app-shell.tsx`, `page.tsx` (con los tres estados) y el manifest, y para explicarme la corrección del warning de `themeColor`. Revisé y ejecuté yo mismo cada comando antes de subir los cambios.
 
+### Semana 3
+
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé el service worker (`public/sw.js`) con estrategias diferenciadas de caché (red primero para navegación, caché primero con actualización en segundo plano para recursos estáticos), la página de fallback offline (`public/offline.html`), el registro del service worker (`src/lib/pwa/register-service-worker.ts`) y el componente cliente que lo invoca (`src/components/sw-register.tsx`), integrado en `layout.tsx`. Enlace: [pega aquí el link a tu commit]
+
+- **Decisión que puedo explicar y por qué:** Implementé "actualización segura" evitando `self.skipWaiting()` automático en el evento `install`. Si la nueva versión del service worker tomara control de inmediato, podría interrumpir a un usuario a medio registrar una inspección offline. En su lugar, la nueva versión se instala y espera un mensaje explícito (`SKIP_WAITING`) antes de activarse, priorizando la continuidad de la sesión sobre la inmediatez de la actualización.
+- **Comando o prueba proporcionada que ejecuté:** `npm run dev`, `npm run verify`.
+- **Resultado real que observé:** [pega aquí el resultado real de tu npm run verify una vez lo corras]
+- **Qué verifica esa prueba y qué no verifica:** Verifica que el service worker registra los eventos de ciclo de vida esperados (install, activate, fetch, message), que no activa automáticamente la nueva versión, y que existe un fallback offline referenciado correctamente. No verifica el comportamiento real en un navegador con conexión simulada como offline — eso requiere prueba manual en DevTools, no automatizada esta semana.
+- **Limitación, dificultad o riesgo que identifiqué:** El caché no incluye aún llamadas a una API real, porque el proyecto sigue usando datos sintéticos locales. Tampoco se implementa todavía el guardado de datos generados sin conexión (eso corresponde a RF-04, con IndexedDB o similar, en una semana posterior); el service worker de esta semana resuelve la disponibilidad offline de la app, no el almacenamiento de datos nuevos.
+- **Uso de IA:** Usé Claude para estructurar `sw.js`, `register-service-worker.ts` y el componente de registro, y para explicarme el razonamiento detrás de la actualización segura. Revisé y probé yo mismo el registro con `npm run dev` antes de subir los cambios.
+
 
 ## Integrante: Josmar Olivera Perez
 
