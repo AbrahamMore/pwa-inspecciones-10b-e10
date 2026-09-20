@@ -47,7 +47,7 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Valid
 - **Limitación, dificultad o riesgo que identifiqué:** El ajuste al requisito aclara el criterio de aceptación, pero la lógica para manejar registros duplicados aún no está implementada ni probada; queda documentada como parte del alcance de una semana posterior.
 - **Uso de IA:** Usé Claude como apoyo para entender los pasos de la actividad, organizar mi evidencia en el formato correcto y redactar la propuesta de aclaración del requisito a partir de la idea que yo identifiqué (el caso de registros duplicados cuando dos técnicos registran el mismo laboratorio). Verifiqué yo misma que el proyecto corriera en mi máquina, ejecuté y confirmé los comandos y resultados descritos arriba, y revisé el cambio en `requirements.md` antes de hacer commit y push.
 
-### Semana 2
+### Semana 2   
 
 Mi contribución concreta y enlace a archivo, commit anterior o revisión: Corregí el nombre del archivo `manifest.webmanifest` (tenía un error de doble punto tras el pull), creé `tests/manifest.spec.ts` con la prueba proporcionada, instalé `tsx` como dependencia de desarrollo y actualicé el script `test` en `package.json` para ejecutarlo. También diagnostiqué y corregí dos fallos técnicos que bloqueaban la verificación: un error de "top-level await" (agregando `"type": "module"` en `package.json`) y una prueba desactualizada en `tests/starter.spec.mjs` que buscaba un texto solo en `page.tsx` cuando el shell de Abraham lo había movido a `app-shell.tsx`. Enlace al commit: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/d806c23
 
