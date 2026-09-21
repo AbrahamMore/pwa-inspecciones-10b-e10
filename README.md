@@ -25,6 +25,12 @@ Ejecuta comprobación de archivos, pruebas proporcionadas (incluyendo `tests/man
 
 GitHub Actions ejecuta la misma verificación y permite descargar el artefacto correspondiente a cada semana. El reporte local se excluye de Git: adjúntenlo en Classroom o descarguen el del SHA entregado desde Actions.
 
+## Service Worker y modo offline (Semana 3)
+
+El proyecto registra un service worker (`public/sw.js`) que permite abrir la app sin conexión, mostrando `public/offline.html` si la navegación falla por falta de red. La estrategia de caché completa está documentada en [`docs/cache-strategy.md`](docs/cache-strategy.md).
+
+Para probarlo manualmente: `npm run dev`, abre la app una vez con conexión (para que se precachee), y luego simula sin conexión desde las DevTools del navegador (pestaña Network → Offline) y recarga.
+
 ## Trabajo y entrega en equipo
 
 Inviten a los integrantes y al docente al mismo repositorio privado. Cada persona registra su evidencia en una sección de `evidence/individual.md`. Todos entregan en Classroom el mismo SHA final y enlaces, identificando su sección. El formato exacto está en el documento de cada actividad; no se requiere un pull request adicional ni una copia por alumno.
@@ -39,4 +45,4 @@ Inviten a los integrantes y al docente al mismo repositorio privado. Cada person
 - `evidence/`: evidencia propia de cada integrante.
 - `tests/`: pruebas proporcionadas y agregadas por el equipo (`starter.spec.mjs`, `manifest.spec.ts`); no es una suite completa de comportamiento.
 
-Registren aquí sus supuestos y limitaciones de ejecución. El proyecto ya cuenta con manifest y shell instalable, pero aún no implementa offline real ni sincronización — eso corresponde a semanas posteriores. No incluyan datos personales reales en el producto, archivos `.env` ni credenciales. La identificación de integrantes se conserva en el repositorio privado y Classroom.
+Registren aquí sus supuestos y limitaciones de ejecución. El proyecto ya cuenta con manifest, shell instalable y disponibilidad offline de la aplicación, pero aún no implementa sincronización — eso corresponde a semanas posteriores. No incluyan datos personales reales en el producto, archivos `.env` ni credenciales. La identificación de integrantes se conserva en el repositorio privado y Classroom.
