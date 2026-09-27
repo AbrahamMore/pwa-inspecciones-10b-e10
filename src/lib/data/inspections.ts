@@ -44,3 +44,20 @@ export const inspections: Inspection[] = [
   }
 ];
 
+// Agregar al final del archivo existente, conservando `inspections` y el tipo `Inspection`.
+
+export function filtrarInspecciones(items: Inspection[], query: string): Inspection[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return items;
+  return items.filter((item) =>
+    item.location.toLowerCase().includes(normalized) ||
+    item.summary.toLowerCase().includes(normalized)
+  );
+}
+
+export async function getInspeccionById(id: string): Promise<Inspection | undefined> {
+  // Simula una consulta asíncrona sobre el fixture sintético.
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(inspections.find((item) => item.id === id)), 200);
+  });
+}
