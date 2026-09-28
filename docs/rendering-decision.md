@@ -32,4 +32,12 @@ La página de detalle no tiene `"use client"` y no usa `Date.now()` ni `Math.ran
 - Para la ID inexistente, la prueba invoca directamente la función de página y comprueba que la llamada a `notFound()` provoque un rechazo. No es una prueba E2E ni comprueba una respuesta HTTP 404 real en un navegador.
 - La búsqueda en el input no se prueba como interacción de interfaz en un navegador; se prueba la función pura `filtrarInspecciones`. El proyecto no tiene Playwright configurado.
 - `fetchInspections` siempre resuelve con el fixture actual, por lo que el estado de error del listado está implementado pero no se ejercita con un fallo real de fuente de datos.
-- No se ha documentado una medición de rendimiento. TTFB y tiempo hasta contenido visible quedan pendientes de medir y registrar con herramientas del navegador; no se atribuye aquí ningún valor.
+- Mediciones de rendimiento registradas (DevTools - Network sin caché)
+- Métrica: medición local el 27 de septiembre de 2026 en Chrome, con `npm run build` y `npm run start`, DevTools abierto y "Disable cache" activado, cinco recargas por ruta y datos sintéticos.
+
+| Ruta | TTFB promedio | DOMContentLoaded promedio |
+|---|---|---|
+| Detalle SSR (`/inspecciones/inspection-003`) | ~278.4 ms | ~351.6 ms |
+| Listado CSR (`/inspecciones`) | ~30.5 ms | ~76.0 ms |
+
+Interpretación y límites: el TTFB del detalle incluye una espera simulada de 200 ms en `getInspeccionById`, por lo que refleja el fixture y no una fuente real. Las cifras del listado miden solo el HTML inicial; el contenido aparece después de la hidratación y de una espera simulada de 300 ms, tiempo que no se midió. Por eso las dos rutas no son comparables en tiempo hasta contenido visible. La diferencia verificable es cualitativa: el detalle SSR entrega el contenido en el primer HTML y el listado CSR muestra primero un estado de carga. Medir el tiempo hasta contenido visible (por ejemplo con la pestaña Performance) queda como mejora futura.

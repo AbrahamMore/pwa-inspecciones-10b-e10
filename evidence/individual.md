@@ -37,6 +37,16 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Imple
 - **Limitación, dificultad o riesgo que identifiqué:** El caché no incluye aún llamadas a una API real, porque el proyecto sigue usando datos sintéticos locales. Tampoco se implementa todavía el guardado de datos generados sin conexión (eso corresponde a RF-04, con IndexedDB o similar, en una semana posterior); el service worker de esta semana resuelve la disponibilidad offline de la app, no el almacenamiento de datos nuevos.
 - **Uso de IA:** Usé Claude para estructurar `sw.js`, `register-service-worker.ts` y el componente de registro, y para explicarme el razonamiento detrás de la actualización segura. Revisé y probé yo mismo el registro con `npm run dev` antes de subir los cambios.
 
+### Semana 4
+
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé la base funcional del renderizado CSR/SSR: extendí `src/lib/data/inspections.ts` con `filtrarInspecciones` y `getInspeccionById`, creé `src/components/loading-state.tsx`, el listado CSR en `src/app/inspecciones/page.tsx` y el detalle SSR en `src/app/inspecciones/[id]/page.tsx`. Trabajé desde la rama `feature_csr-ssr-abraham` y la fusioné con un Pull Request. Enlace: [pega aquí el link a tu PR o commit]
+
+- **Decisión que puedo explicar y por qué:** Extraje la lógica de filtrado y de búsqueda de datos a funciones puras, separadas de los componentes. Así se pueden probar con entradas y salidas concretas sin necesitar un navegador, y la prueba falla si la lógica se rompe, no solo si falta un archivo.
+- **Comando o prueba proporcionada que ejecuté:** `npm run verify`.
+- **Resultado real que observé:** Pasaron las cuatro pruebas existentes y el build de Next.js terminó bien. En la tabla de rutas, `/inspecciones` salió como estática (○) y `/inspecciones/[id]` como dinámica renderizada en servidor (ƒ), lo que confirma que ambas rutas siguen caminos de renderizado distintos.
+- **Qué verifica esa prueba y qué no verifica:** Verifica que el proyecto compila, que las rutas se generan con el tipo de renderizado esperado y que las pruebas previas siguen pasando. No verifica la interacción de búsqueda en un navegador real, porque eso requeriría una prueba end-to-end.
+- **Limitación, dificultad o riesgo que identifiqué:** El detalle SSR depende de un fixture sintético con una espera simulada, así que no refleja la latencia de una fuente real. El estado de error del listado está implementado, pero no se puede disparar con datos locales.
+- **Uso de IA:** Usé Claude para estructurar las rutas CSR/SSR y las funciones puras, y para explicarme la diferencia entre ambos enfoques. Ejecuté yo mismo la verificación y revisé el resultado del build antes de fusionar.
 
 ## Integrante: Josmar Olivera Perez
 
@@ -84,6 +94,23 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creé
 
 - **Uso de IA:** Usé ChatGPT y Codex en Visual Studio Code como apoyo para analizar el repositorio y el kit-estudiante antes de realizar cambios, comparar los requisitos de la Semana 3 con la implementación existente y estructurar la documentación de `docs/cache-strategy.md` y `README.md`. Codex realizó únicamente los cambios documentales solicitados y no modificó el Service Worker, las pruebas ni la configuración del proyecto. Revisé los cambios y validé manualmente que correspondieran a mi alcance. También ejecuté directamente `npm ci` y `npm run verify`, comprobando el resultado final de las pruebas y del build antes de preparar el commit.
 
+## Semana 4 — Josmar
+
+- **Estudiante:** Josmar Olivera Perez
+- **Commit SHA evaluado:** c9ca1febc441b9ab3365f9074b374401402aee1f
+- **Decisión técnica que puedo explicar:** `/inspecciones` usa un Client Component para mantener el estado de búsqueda y filtrar las inspecciones en el cliente; `/inspecciones/[id]` usa un Server Component asíncrono para resolver y mostrar el detalle, con `notFound()` cuando la ID no existe.
+- **Prueba ejecutada y resultado:** `npm ci` terminó sin reportar error; `npm test` pasó las cinco pruebas (`starter.spec.mjs`, `manifest.spec.ts`, `service-worker.spec.ts`, `offline.spec.ts` y `rendering.spec.ts`); `npm run build` terminó correctamente; `npm run verify` reportó PASS en estructura, pruebas y build; `node scripts/verify.mjs --structure` confirmó la estructura. `bash public-tests/check.sh` no pudo ejecutarse porque `bash` no está disponible en este entorno. `npm run verify` consultó internamente `git rev-parse` y `git status` para generar el reporte; no ejecuté comandos Git directamente. `make verify` quedó pendiente porque delega a ese mismo script.
+- **Limitación o fallo diagnosticado:** La prueba de renderizado cubre la función pura de filtrado y la salida del detalle, pero no automatiza la interacción de búsqueda en un navegador ni verifica una respuesta HTTP 404 real. No hay Playwright configurado y no se encontró una medición de rendimiento registrada.
+- **Cambio que puedo defender o modificar en vivo:** El ADR de renderizado CSR/SSR y la documentación de Semana 4 agregada al README.
+- **Uso declarado de IA:**
+	- **Herramienta:** ChatGPT/Codex.
+	- **Propósito:** Análisis del proyecto, comprensión de CSR/SSR, apoyo para estructurar la documentación y revisión de la implementación.
+	- **Validación humana:** Revisé el contenido y ejecuté las verificaciones locales indicadas arriba; registré los resultados observados sin atribuir métricas no medidas.
+
+
+
+
+
 
 ## Integrante: Diana Laura Olmos Antonio
 ### Semana 1
@@ -130,15 +157,3 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creé
 - **Limitación, dificultad o riesgo que identifiqué:** Los dos archivos que corregí no son de mi autoría original; modifiqué código de Abraham para que mi prueba pudiera ejecutarse, y lo documenté en la descripción del Pull Request para que él lo revise con contexto antes de aprobar. Existe el riesgo de que, en revisión, se prefiera una solución distinta (por ejemplo, ajustar la prueba en vez del componente) — eso queda pendiente de la resolución del PR.
 - **Uso de IA:** Usé Claude para diagnosticar ambos errores de `ReferenceError: React is not defined`, entender por qué el build de Next.js no los mostraba pero la ejecución directa con `tsx` sí, y decidir la corrección mínima (agregar el import sin tocar lógica). Verifiqué yo misma cada resultado corriendo `npm run verify` antes y después de cada cambio.
 
-## Semana 4 — Josmar
-
-- **Estudiante:** Josmar Olivera Perez
-- **Commit SHA evaluado:** c9ca1febc441b9ab3365f9074b374401402aee1f
-- **Decisión técnica que puedo explicar:** `/inspecciones` usa un Client Component para mantener el estado de búsqueda y filtrar las inspecciones en el cliente; `/inspecciones/[id]` usa un Server Component asíncrono para resolver y mostrar el detalle, con `notFound()` cuando la ID no existe.
-- **Prueba ejecutada y resultado:** `npm ci` terminó sin reportar error; `npm test` pasó las cinco pruebas (`starter.spec.mjs`, `manifest.spec.ts`, `service-worker.spec.ts`, `offline.spec.ts` y `rendering.spec.ts`); `npm run build` terminó correctamente; `npm run verify` reportó PASS en estructura, pruebas y build; `node scripts/verify.mjs --structure` confirmó la estructura. `bash public-tests/check.sh` no pudo ejecutarse porque `bash` no está disponible en este entorno. `npm run verify` consultó internamente `git rev-parse` y `git status` para generar el reporte; no ejecuté comandos Git directamente. `make verify` quedó pendiente porque delega a ese mismo script.
-- **Limitación o fallo diagnosticado:** La prueba de renderizado cubre la función pura de filtrado y la salida del detalle, pero no automatiza la interacción de búsqueda en un navegador ni verifica una respuesta HTTP 404 real. No hay Playwright configurado y no se encontró una medición de rendimiento registrada.
-- **Cambio que puedo defender o modificar en vivo:** El ADR de renderizado CSR/SSR y la documentación de Semana 4 agregada al README.
-- **Uso declarado de IA:**
-	- **Herramienta:** ChatGPT/Codex.
-	- **Propósito:** Análisis del proyecto, comprensión de CSR/SSR, apoyo para estructurar la documentación y revisión de la implementación.
-	- **Validación humana:** Revisé el contenido y ejecuté las verificaciones locales indicadas arriba; registré los resultados observados sin atribuir métricas no medidas.
