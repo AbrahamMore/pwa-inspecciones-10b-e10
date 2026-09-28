@@ -46,3 +46,18 @@ Inviten a los integrantes y al docente al mismo repositorio privado. Cada person
 - `tests/`: pruebas proporcionadas y agregadas por el equipo (`starter.spec.mjs`, `manifest.spec.ts`); no es una suite completa de comportamiento.
 
 Registren aquí sus supuestos y limitaciones de ejecución. El proyecto ya cuenta con manifest, shell instalable y disponibilidad offline de la aplicación, pero aún no implementa sincronización — eso corresponde a semanas posteriores. No incluyan datos personales reales en el producto, archivos `.env` ni credenciales. La identificación de integrantes se conserva en el repositorio privado y Classroom.
+
+## Renderizado CSR/SSR (Semana 4)
+
+El listado de inspecciones (`/inspecciones`) usa interacción de cliente para la búsqueda y el filtrado local sin recargar la página. Next.js puede prerenderizar el HTML inicial del Client Component; en esta ruta ese HTML presenta el estado de carga y los resultados aparecen después de que se ejecuta la carga en el cliente. El detalle (`/inspecciones/[id]`) es un Server Component que resuelve la inspección en el servidor y usa `notFound()` cuando la ID no existe.
+
+La decisión completa, con ventajas, costos, riesgos y limitaciones de las pruebas, está documentada en [`docs/rendering-decision.md`](docs/rendering-decision.md).
+
+Para probarlo manualmente, ejecuta `npm run dev` y:
+
+- abre `/inspecciones`;
+- busca por nombre de laboratorio y comprueba el filtrado;
+- abre el detalle de un resultado;
+- prueba una ID inexistente, si corresponde.
+
+En esta ejecución, `npm ci`, `npm test`, `npm run build`, `npm run verify` y `node scripts/verify.mjs --structure` finalizaron correctamente. `bash public-tests/check.sh` no pudo ejecutarse porque `bash` no está disponible en este entorno; su equivalente estructural con Node pasó. `npm run verify` consultó internamente `git rev-parse` y `git status` para generar su reporte; no ejecuté comandos Git directamente. No se ejecutó `make verify`, porque delega a ese mismo script.
