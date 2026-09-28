@@ -133,7 +133,7 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creé
 ## Semana 4 — Josmar
 
 - **Estudiante:** Josmar Olivera Perez
-- **Commit SHA evaluado:** PENDIENTE
+- **Commit SHA evaluado:** c9ca1febc441b9ab3365f9074b374401402aee1f
 - **Decisión técnica que puedo explicar:** `/inspecciones` usa un Client Component para mantener el estado de búsqueda y filtrar las inspecciones en el cliente; `/inspecciones/[id]` usa un Server Component asíncrono para resolver y mostrar el detalle, con `notFound()` cuando la ID no existe.
 - **Prueba ejecutada y resultado:** `npm ci` terminó sin reportar error; `npm test` pasó las cinco pruebas (`starter.spec.mjs`, `manifest.spec.ts`, `service-worker.spec.ts`, `offline.spec.ts` y `rendering.spec.ts`); `npm run build` terminó correctamente; `npm run verify` reportó PASS en estructura, pruebas y build; `node scripts/verify.mjs --structure` confirmó la estructura. `bash public-tests/check.sh` no pudo ejecutarse porque `bash` no está disponible en este entorno. `npm run verify` consultó internamente `git rev-parse` y `git status` para generar el reporte; no ejecuté comandos Git directamente. `make verify` quedó pendiente porque delega a ese mismo script.
 - **Limitación o fallo diagnosticado:** La prueba de renderizado cubre la función pura de filtrado y la salida del detalle, pero no automatiza la interacción de búsqueda en un navegador ni verifica una respuesta HTTP 404 real. No hay Playwright configurado y no se encontró una medición de rendimiento registrada.
