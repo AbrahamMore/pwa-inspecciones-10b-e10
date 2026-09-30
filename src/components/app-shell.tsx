@@ -8,7 +8,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="page-shell">
       <header className="hero">
-        <p className="eyebrow">Proyecto integrador · Semana 2</p>
+        <p className="eyebrow">Proyecto integrador</p>
         <h1>Inspecciones de laboratorio</h1>
         <p className="lead">
           Registro de mantenimiento para trabajar con conectividad intermitente.
