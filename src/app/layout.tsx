@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "./globals.css";
 import { SwRegister } from "../components/sw-register";
 
 export const metadata: Metadata = {
