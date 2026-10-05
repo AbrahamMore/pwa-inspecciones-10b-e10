@@ -48,6 +48,22 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Imple
 - **Limitación, dificultad o riesgo que identifiqué:** El detalle SSR depende de un fixture sintético con una espera simulada, así que no refleja la latencia de una fuente real. El estado de error del listado está implementado, pero no se puede disparar con datos locales.
 - **Uso de IA:** Usé Claude para estructurar las rutas CSR/SSR y las funciones puras, y para explicarme la diferencia entre ambos enfoques. Ejecuté yo mismo la verificación y revisé el resultado del build antes de fusionar.
 
+### Semana 5
+
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé la base de persistencia local y sincronización idempotente: `src/lib/storage/schema.ts` (esquema y adaptador de almacenamiento con fallback en memoria para servidor/pruebas), `src/lib/sync/queue.ts` (cola de registros pendientes, reintentos con límite máximo, sincronización idempotente vía clientId), y `src/lib/sync/conflict-policy.ts` (resolución de conflictos last-write-wins). Trabajé desde la rama `feature/sync-abraham` y la fusioné con un Pull Request. Enlace: [pega aquí el link a tu PR o commit]
+
+- **Decisión que puedo explicar y por qué:** Elegí generar el `clientId` una sola vez al crear el registro, y reenviarlo sin cambios en cada reintento de sincronización. Esto es lo que garantiza idempotencia: un backend real podría reconocer una petición repetida por ese mismo ID y no crear un duplicado, aunque la sincronización falle y se reintente varias veces por problemas de red.
+- **Comando o prueba proporcionada que ejecuté:** `npm run verify`.
+- **Resultado real que observé:** Pasaron las 6 pruebas (incluyendo `sync.spec.ts` de Diana una vez integrada) y el build de Next.js compiló sin errores, con las 4 rutas esperadas en la tabla de salida.
+- **Qué verifica esa prueba y qué no verifica:** Verifica que la cola encola correctamente, que los reintentos respetan el límite máximo antes de pasar a estado de error, que el `clientId` no cambia entre intentos, y que la política de conflictos resuelve según el timestamp más reciente. No verifica el comportamiento contra un backend real, porque todavía no existe uno — `syncFn` se prueba con funciones simuladas.
+- **Limitación, dificultad o riesgo que identifiqué:** Se usó `localStorage` en vez de IndexedDB por simplicidad, lo cual es síncrono y tiene límite de tamaño; para el volumen de datos sintéticos de este proyecto no es un problema real, pero queda documentado como trade-off consciente en `docs/sync-policy.md`. Tampoco existe aún una interfaz visual para que el usuario vea el estado de la cola.
+- **Uso de IA:** Usé Claude para estructurar la cola, el esquema de almacenamiento y la política de conflictos, y para explicarme el mecanismo de idempotencia vía clientId. Ejecuté yo mismo la verificación y revisé el resultado del build antes de fusionar.
+
+
+
+
+
+
 ## Integrante: Josmar Olivera Perez
 
  Grupo y equipo: "B" - Equipo 10
