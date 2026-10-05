@@ -7,17 +7,20 @@
 
 ## Integrante: Abraham Moreno Vasquez
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creación y configuración inicial del repositorio, redacción completa de `docs/requirements.md` y `docs/decision-record.md`. Enlace: [pega aquí el link al commit donde subiste esos archivos]
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creación y configuración inicial del repositorio, redacción completa de `docs/requirements.md` y `docs/decision-record.md`. Enlace: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/d270e2ebd33401e3f87037ba1eb820915948d6ff
 - **Decisión que puedo explicar y por qué:** Elegí PWA como estrategia sobre app nativa o multiplataforma porque el caso de uso central del proyecto (un técnico registrando hallazgos de inspección sin conexión dentro de un laboratorio) se resuelve con una app instalable y con capacidad offline, sin el costo de desarrollo duplicado que exige una app nativa por plataforma.
 - **Comando o prueba proporcionada que ejecuté:** `npm run verify`
 - **Resultado real que observé:** `starter.spec.mjs: PASS`; build de Next.js 14.2.35 compilado exitosamente, generando 4/4 páginas estáticas sin errores; el comando terminó con "Verificación técnica: pass" y generó `reports/verification.json`.
 - **Qué verifica esa prueba y qué no verifica:** Verifica que el proyecto instala correctamente sus dependencias, que la prueba proporcionada por el starter pasa, y que el build de Next.js compila sin errores. No verifica la calidad ni coherencia del análisis en `requirements.md` o `decision-record.md` — eso requiere revisión humana del contenido, no un resultado técnico automático.
 - **Limitación, dificultad o riesgo que identifiqué:** El requisito RF-04 (guardado offline y sincronización) todavía no está implementado, solo documentado como meta futura; aún no se ha probado en un dispositivo real sin conexión.
 - **Uso de IA:** Usé Claude para estructurar y redactar el contenido de `docs/requirements.md` y `docs/decision-record.md` a partir de las decisiones que yo tomé (definición del problema de inspecciones y mantenimiento de laboratorios UTT, escenario de conectividad intermitente, elección de PWA sobre las otras alternativas). Revisé el contenido generado antes de subirlo al repositorio.
+
+
+
 #### 
 ### Semana 2
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Construcción del shell instalable de la aplicación: creé `public/manifest.webmanifest`, actualicé `src/app/layout.tsx` para enlazarlo, extraje `src/components/app-shell.tsx` como componente de navegación reutilizable, y reescribí `src/app/page.tsx` para manejar estados de carga, error y vacío en vez de mostrar los datos directo. También corregí una advertencia de build moviendo `themeColor` del export `metadata` al export `viewport`, como lo requiere Next.js 14. Enlace: [pega aquí el link a tu commit]
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Construcción del shell instalable de la aplicación: creé `public/manifest.webmanifest`, actualicé `src/app/layout.tsx` para enlazarlo, extraje `src/components/app-shell.tsx` como componente de navegación reutilizable, y reescribí `src/app/page.tsx` para manejar estados de carga, error y vacío en vez de mostrar los datos directo. También corregí una advertencia de build moviendo `themeColor` del export `metadata` al export `viewport`, como lo requiere Next.js 14. Enlace: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/59abada86f474bef46db6cf62b51753ddc8b3165
 
 - **Decisión que puedo explicar y por qué:** Separé la navegación fija (`app-shell.tsx`) del contenido de la pantalla (`page.tsx`) en vez de dejar todo junto como en la Semana 1. Esto permite reutilizar el shell en futuras pantallas del proyecto sin duplicar el header y footer, y aísla la lógica de estados (carga/error/vacío) en el componente que realmente cambia semana a semana.
 - **Comando o prueba proporcionada que ejecuté:** `npm ci`, `npm run dev`, `npm run verify`.
@@ -25,10 +28,12 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Const
 - **Qué verifica esa prueba y qué no verifica:** Verifica que el shell compila, que el manifest tiene los campos mínimos y que las pruebas proporcionadas y agregadas por el equipo pasan. No verifica que la app sea instalable de verdad en un dispositivo real, ni que los íconos referenciados en el manifest existan como archivos físicos todavía.
 - **Limitación, dificultad o riesgo que identifiqué:** Los íconos (`/icons/icon-192.png`, etc.) están referenciados en el manifest pero aún no existen como archivos PNG reales; el manifest es válido como documento, pero el navegador no podrá mostrar el ícono de instalación hasta agregarlos. El estado de "error" en `page.tsx` está implementado pero no se puede disparar todavía, porque los datos son locales y no dependen de una fuente que pueda fallar.
 - **Uso de IA:** Usé Claude para estructurar `app-shell.tsx`, `page.tsx` (con los tres estados) y el manifest, y para explicarme la corrección del warning de `themeColor`. Revisé y ejecuté yo mismo cada comando antes de subir los cambios.
+enlace: 
 
 ### Semana 3
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé el service worker (`public/sw.js`) con estrategias diferenciadas de caché (red primero para navegación, caché primero con actualización en segundo plano para recursos estáticos), la página de fallback offline (`public/offline.html`), el registro del service worker (`src/lib/pwa/register-service-worker.ts`) y el componente cliente que lo invoca (`src/components/sw-register.tsx`), integrado en `layout.tsx`. Enlace: [pega aquí el link a tu commit]
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé el service worker (`public/sw.js`) con estrategias diferenciadas de caché (red primero para navegación, caché primero con actualización en segundo plano para recursos estáticos), la página de fallback offline (`public/offline.html`), el registro del service worker (`src/lib/pwa/register-service-worker.ts`) y el componente cliente que lo invoca (`src/components/sw-register.tsx`), integrado en `layout.tsx`. Enlace: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/f89ede5086d3bcdf99db56d742a08506175b810f
+
 
 - **Decisión que puedo explicar y por qué:** Implementé "actualización segura" evitando `self.skipWaiting()` automático en el evento `install`. Si la nueva versión del service worker tomara control de inmediato, podría interrumpir a un usuario a medio registrar una inspección offline. En su lugar, la nueva versión se instala y espera un mensaje explícito (`SKIP_WAITING`) antes de activarse, priorizando la continuidad de la sesión sobre la inmediatez de la actualización.
 - **Comando o prueba proporcionada que ejecuté:** `npm run dev`, `npm run verify`.
@@ -39,7 +44,7 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Imple
 
 ### Semana 4
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé la base funcional del renderizado CSR/SSR: extendí `src/lib/data/inspections.ts` con `filtrarInspecciones` y `getInspeccionById`, creé `src/components/loading-state.tsx`, el listado CSR en `src/app/inspecciones/page.tsx` y el detalle SSR en `src/app/inspecciones/[id]/page.tsx`. Trabajé desde la rama `feature_csr-ssr-abraham` y la fusioné con un Pull Request. Enlace: [pega aquí el link a tu PR o commit]
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé la base funcional del renderizado CSR/SSR: extendí `src/lib/data/inspections.ts` con `filtrarInspecciones` y `getInspeccionById`, creé `src/components/loading-state.tsx`, el listado CSR en `src/app/inspecciones/page.tsx` y el detalle SSR en `src/app/inspecciones/[id]/page.tsx`. Trabajé desde la rama `feature_csr-ssr-abraham` y la fusioné con un Pull Request. Enlace: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/c3e8093c674bc022a6d0a8a11e8c505856eed1e9
 
 - **Decisión que puedo explicar y por qué:** Extraje la lógica de filtrado y de búsqueda de datos a funciones puras, separadas de los componentes. Así se pueden probar con entradas y salidas concretas sin necesitar un navegador, y la prueba falla si la lógica se rompe, no solo si falta un archivo.
 - **Comando o prueba proporcionada que ejecuté:** `npm run verify`.
@@ -50,7 +55,8 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Imple
 
 ### Semana 5
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé la base de persistencia local y sincronización idempotente: `src/lib/storage/schema.ts` (esquema y adaptador de almacenamiento con fallback en memoria para servidor/pruebas), `src/lib/sync/queue.ts` (cola de registros pendientes, reintentos con límite máximo, sincronización idempotente vía clientId), y `src/lib/sync/conflict-policy.ts` (resolución de conflictos last-write-wins). Trabajé desde la rama `feature/sync-abraham` y la fusioné con un Pull Request. Enlace: [pega aquí el link a tu PR o commit]
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Implementé la base de persistencia local y sincronización idempotente: `src/lib/storage/schema.ts` (esquema y adaptador de almacenamiento con fallback en memoria para servidor/pruebas), `src/lib/sync/queue.ts` (cola de registros pendientes, reintentos con límite máximo, sincronización idempotente vía clientId), y `src/lib/sync/conflict-policy.ts` (resolución de conflictos last-write-wins). Trabajé desde la rama `feature/sync-abraham` y la fusioné con un Pull Request. Enlace: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/e9bdb234e44e5dca62d5dd107806a721dca4cca7
+
 
 - **Decisión que puedo explicar y por qué:** Elegí generar el `clientId` una sola vez al crear el registro, y reenviarlo sin cambios en cada reintento de sincronización. Esto es lo que garantiza idempotencia: un backend real podría reconocer una petición repetida por ese mismo ID y no crear un duplicado, aunque la sincronización falle y se reintente varias veces por problemas de red.
 - **Comando o prueba proporcionada que ejecuté:** `npm run verify`.
@@ -123,16 +129,25 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creé
 	- **Propósito:** Análisis del proyecto, comprensión de CSR/SSR, apoyo para estructurar la documentación y revisión de la implementación.
 	- **Validación humana:** Revisé el contenido y ejecuté las verificaciones locales indicadas arriba; registré los resultados observados sin atribuir métricas no medidas.
 
-	### Semana 5
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creé `tests/sync.spec.ts` con las pruebas de la cola de sincronización offline proporcionadas (encolado con `clientId`, sincronización exitosa, idempotencia en reintentos, límite de intentos antes de pasar a estado `error`, y resolución de conflictos last-write-wins), y actualicé el script `test` en `package.json` para incluirla. A diferencia de semanas anteriores, no fue necesario corregir ningún archivo existente de Abraham: el código de `src/lib/storage/schema.ts`, `src/lib/sync/queue.ts` y `src/lib/sync/conflict-policy.ts` ya estaba completo y pasó todas las pruebas sin ajustes. Trabajé en la rama `feature/tests-sync-diana` y abrí un Pull Request para revisión. Commit: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/e4415e7 — Pull Request: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/pull/7
+### Semana 5
 
-- **Decisión que puedo explicar y por qué:** No tomé decisiones de implementación esta semana, ya que mi tarea fue estrictamente de pruebas sobre código ya existente. La decisión que sí puedo explicar es de diagnóstico: antes de correr `npm run verify`, confirmé con `git pull origin main` que los tres archivos que mi prueba necesita (`schema.ts`, `queue.ts`, `conflict-policy.ts`) ya existían en el repositorio, evitando repetir el mismo tipo de bloqueo por archivos faltantes que tuve en semanas anteriores.
-- **Comando o prueba que ejecuté:** `git checkout main`, `git pull origin main`, `git checkout -b feature/tests-sync-diana`, `npm run verify`, `git push -u origin feature/tests-sync-diana`.
-- **Resultado real que observé:** `npm run verify` pasó a la primera ejecución, sin errores: `starter.spec.mjs: PASS`, `manifest.spec.ts: PASS`, `service-worker.spec.ts: PASS`, `offline.spec.ts: PASS`, `rendering.spec.ts: PASS`, `sync.spec.ts: PASS`, build de Next.js compilado exitosamente (5/5 páginas generadas), y `Verificación técnica: pass`.
-- **Qué verifica esa prueba y qué no verifica:** `sync.spec.ts` verifica que encolar genere un `clientId` único y estado `pending`; que una sincronización exitosa limpie los pendientes; que el `clientId` se mantenga igual entre reintentos (idempotencia); que tras 3 fallos consecutivos el registro pase a `error` sin seguir reintentándose automáticamente; y que la resolución de conflictos elija correctamente según `updatedAt` (remoto más nuevo, local más nuevo, timestamps iguales, y rechazo de `clientId` distintos). No prueba la sincronización contra un backend real (el proyecto aún no tiene uno), ni el comportamiento de la cola en un navegador real con `localStorage` lleno al límite.
-- **Limitación, dificultad o riesgo que identifiqué:** Esta semana no encontré bugs que corregir, pero eso también significa que no verifiqué el comportamiento de la cola manualmente en el navegador (solo mediante las pruebas automatizadas) — una prueba manual simulando desconexión real en DevTools queda pendiente como evidencia adicional, igual que lo documentó Josmar para el service worker en la Semana 3.
-- **Uso de IA:** Usé Claude para confirmar que los archivos base ya existían antes de crear la prueba, y para estructurar el flujo de trabajo en rama y PR. No fue necesario diagnosticar ningún bug esta semana. Ejecuté y verifiqué yo misma cada comando y resultado antes de hacer commit y push.
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Documenté la política de sincronización de la PWA de inspecciones y mantenimiento de laboratorios en `docs/sync-policy.md`. En este documento expliqué el uso de `localStorage` para la persistencia local, la generación y conservación de `clientId` para evitar duplicados durante los reintentos, la política de reintentos con un máximo de 3 intentos y la resolución de conflictos mediante `last-write-wins`. También actualicé `evidence/individual.md` con la evidencia correspondiente a mi trabajo. La implementación existente de `schema.ts`, `queue.ts`, `conflict-policy.ts` y `sync.spec.ts` no fue modificada.
+
+- **Decisión que puedo explicar y por qué:** Documenté `localStorage` como mecanismo de persistencia local porque es la estrategia utilizada actualmente por la PWA y es suficiente para el alcance de esta semana con datos sintéticos. También documenté la conservación del mismo `clientId` durante los reintentos para permitir la idempotencia y evitar duplicados.
+
+- **Comando o prueba que ejecuté:** `npx tsx tests/sync.spec.ts`.
+
+- **Resultado real que observé:** La prueba `sync.spec.ts` terminó correctamente con resultado `PASS`.
+
+- **Qué verifica esa prueba y qué no verifica:** La prueba verifica el comportamiento de la cola de sincronización, incluyendo el encolado de inspecciones, generación de `clientId`, sincronización exitosa, conservación del `clientId` durante los reintentos, límite de intentos y resolución de conflictos mediante `last-write-wins`. No verifica una sincronización contra un backend real, ya que el proyecto todavía no cuenta con uno.
+
+- **Limitación, dificultad o riesgo que identifiqué:** La sincronización todavía utiliza una función `syncFn` en lugar de un backend real, por lo que la comunicación con un servidor real queda fuera del alcance de esta semana. También se mantiene `localStorage` en lugar de IndexedDB, lo que implica limitaciones de almacenamiento y operaciones síncronas.
+
+- **Uso de IA:** Utilicé IA como apoyo para revisar la implementación existente de la PWA y para elaborar la documentación de la política de sincronización. Revisé manualmente la información generada y la comparé con el código existente antes de incorporarla al proyecto.
+
+
+
 
 
 
