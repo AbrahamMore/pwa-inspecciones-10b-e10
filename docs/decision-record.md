@@ -32,4 +32,4 @@ Conservar los registros de inspección en el dispositivo permite continuidad del
 
 ## Validación
 
-En una semana posterior se probará, con un dispositivo real en modo avión, que un registro de inspección creado sin conexión (RF-04) se guarda localmente y se sincroniza correctamente al recuperar señal. Hasta ese momento, no se afirma que la sincronización offline ya esté validada ni implementada.b
+En una semana posterior se probará, con un dispositivo real en modo avión, que un registro de inspección creado sin conexión (RF-04) se guarda localmente y se sincroniza correctamente al recuperar señal. Hasta ese momento, no se afirma que la sincronización offline ya esté validada ni implementada.
