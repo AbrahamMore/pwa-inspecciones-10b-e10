@@ -151,7 +151,7 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Docum
 
 **Actividad:** Documentación de las capacidades del dispositivo de la Semana 6.
 **Archivos de mi responsabilidad:** `docs/capabilities.md`, `README.md` y esta sección de `evidence/individual.md`.
-**Commit SHA:** Pendiente; se completará después de realizar un commit real.
+**Commit SHA:** 27cc60f78b9e9b6ff6b144f28b945e860af03b3a
 **Decisión técnica:** Documentar los permisos mínimos, la solicitud explícita del usuario, los estados de resultado y los fallbacks según el código inspeccionado, sin modificar los módulos de implementación.
 **Pruebas:** Existe `tests/capabilities.spec.ts`. Inspeccioné sus comprobaciones con objetos simulados sobre geolocalización y redondeo de coordenadas, ausencia de permiso de micrófono, liberación de las pistas de cámara y comportamiento de notificaciones cuando falta soporte o no se concede el permiso. No ejecuté la prueba durante esta tarea.
 **Limitación o riesgo:** Las pruebas simuladas no verifican hardware físico ni diálogos reales de permisos. Según la revisión de `src/app/`, los módulos no están conectados a controles de interfaz.
