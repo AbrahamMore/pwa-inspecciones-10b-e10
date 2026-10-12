@@ -17,7 +17,6 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creac
 
 
 
-#### 
 ### Semana 2
 
 Mi contribución concreta y enlace a archivo, commit anterior o revisión: Construcción del shell instalable de la aplicación: creé `public/manifest.webmanifest`, actualicé `src/app/layout.tsx` para enlazarlo, extraje `src/components/app-shell.tsx` como componente de navegación reutilizable, y reescribí `src/app/page.tsx` para manejar estados de carga, error y vacío en vez de mostrar los datos directo. También corregí una advertencia de build moviendo `themeColor` del export `metadata` al export `viewport`, como lo requiere Next.js 14. Enlace: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/59abada86f474bef46db6cf62b51753ddc8b3165
@@ -28,7 +27,6 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Const
 - **Qué verifica esa prueba y qué no verifica:** Verifica que el shell compila, que el manifest tiene los campos mínimos y que las pruebas proporcionadas y agregadas por el equipo pasan. No verifica que la app sea instalable de verdad en un dispositivo real, ni que los íconos referenciados en el manifest existan como archivos físicos todavía.
 - **Limitación, dificultad o riesgo que identifiqué:** Los íconos (`/icons/icon-192.png`, etc.) están referenciados en el manifest pero aún no existen como archivos PNG reales; el manifest es válido como documento, pero el navegador no podrá mostrar el ícono de instalación hasta agregarlos. El estado de "error" en `page.tsx` está implementado pero no se puede disparar todavía, porque los datos son locales y no dependen de una fuente que pueda fallar.
 - **Uso de IA:** Usé Claude para estructurar `app-shell.tsx`, `page.tsx` (con los tres estados) y el manifest, y para explicarme la corrección del warning de `themeColor`. Revisé y ejecuté yo mismo cada comando antes de subir los cambios.
-enlace: 
 
 ### Semana 3
 
@@ -37,7 +35,7 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Imple
 
 - **Decisión que puedo explicar y por qué:** Implementé "actualización segura" evitando `self.skipWaiting()` automático en el evento `install`. Si la nueva versión del service worker tomara control de inmediato, podría interrumpir a un usuario a medio registrar una inspección offline. En su lugar, la nueva versión se instala y espera un mensaje explícito (`SKIP_WAITING`) antes de activarse, priorizando la continuidad de la sesión sobre la inmediatez de la actualización.
 - **Comando o prueba proporcionada que ejecuté:** `npm run dev`, `npm run verify`.
-- **Resultado real que observé:** [pega aquí el resultado real de tu npm run verify una vez lo corras]
+- **Resultado real que observé:** El resultado fue satisfactorio paso sin algun tipo de error o problemas que pueda afectar el proyecto
 - **Qué verifica esa prueba y qué no verifica:** Verifica que el service worker registra los eventos de ciclo de vida esperados (install, activate, fetch, message), que no activa automáticamente la nueva versión, y que existe un fallback offline referenciado correctamente. No verifica el comportamiento real en un navegador con conexión simulada como offline — eso requiere prueba manual en DevTools, no automatizada esta semana.
 - **Limitación, dificultad o riesgo que identifiqué:** El caché no incluye aún llamadas a una API real, porque el proyecto sigue usando datos sintéticos locales. Tampoco se implementa todavía el guardado de datos generados sin conexión (eso corresponde a RF-04, con IndexedDB o similar, en una semana posterior); el service worker de esta semana resuelve la disponibilidad offline de la app, no el almacenamiento de datos nuevos.
 - **Uso de IA:** Usé Claude para estructurar `sw.js`, `register-service-worker.ts` y el componente de registro, y para explicarme el razonamiento detrás de la actualización segura. Revisé y probé yo mismo el registro con `npm run dev` antes de subir los cambios.
@@ -66,7 +64,14 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Imple
 - **Uso de IA:** Usé Claude para estructurar la cola, el esquema de almacenamiento y la política de conflictos, y para explicarme el mecanismo de idempotencia vía clientId. Ejecuté yo mismo la verificación y revisé el resultado del build antes de fusionar.
 
 
+### Semana 6 
+- **Contribución:** `src/lib/device/camera.ts`, `src/lib/device/geolocation.ts`, `src/lib/notifications/client.ts` y `types.ts`. Enlace: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/df0dc6fbf3be097a5c875c9b1e866f2b008f222e
 
+- **Decisión técnica:** Cada capacidad se pide solo tras una acción del usuario, con el mínimo permiso (cámara sin audio, una lectura de ubicación de baja precisión redondeada, notificaciones locales sin push) y devuelve un estado `ok/unsupported/denied/error` con fallback, para que la app funcione aunque se rechace el permiso.
+- - **Prueba ejecutada y resultado real:** `npm run verify`. Pasaron las 7 pruebas (`starter`, `manifest`, `service-worker`, `offline`, `rendering`, `sync` y `capabilities`), el build de Next.js 14.2.35 compiló (5/5 páginas) y terminó con "Verificación técnica: pass". `npm ci` reportó 3 vulnerabilidades (2 altas y 1 crítica) en dependencias del starter; no usé `npm audit fix --force` para no cambiar versiones sin decisión del equipo.
+- **Qué verifica y qué no:** Verifica la lógica de estados, fallbacks y liberación de la cámara con un entorno simulado. No verifica los diálogos reales de permisos ni el comportamiento en un dispositivo físico.
+- **Limitación:** Aún no hay botones en la interfaz que usen estas funciones; no se probó en iOS ni con HTTPS real.
+- **Uso de IA:** Usé Claude para diseñar y redactar el código y las pruebas de capacidades; revisé el código, entendí la razón de cada permiso y ejecuté `npm run verify` yo mismo.
 
 
 
