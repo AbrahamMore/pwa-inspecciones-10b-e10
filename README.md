@@ -61,3 +61,13 @@ Para probarlo manualmente, ejecuta `npm run dev` y:
 - prueba una ID inexistente, si corresponde.
 
 En esta ejecución, `npm ci`, `npm test`, `npm run build`, `npm run verify` y `node scripts/verify.mjs --structure` finalizaron correctamente. `bash public-tests/check.sh` no pudo ejecutarse porque `bash` no está disponible en este entorno; su equivalente estructural con Node pasó. `npm run verify` consultó internamente `git rev-parse` y `git status` para generar su reporte; no ejecuté comandos Git directamente. No se ejecutó `make verify`, porque delega a ese mismo script.
+
+## Semana 6 — Capacidades del dispositivo y notificaciones
+
+- **Código:** `src/lib/device/camera.ts`, `src/lib/device/geolocation.ts`, `src/lib/notifications/client.ts`.
+- **Documentación:** `docs/capabilities.md`, con permisos, fallbacks, decisiones y limitaciones.
+- **Pruebas:** `tests/capabilities.spec.ts`.
+- **Instalación:** `npm ci`.
+- **Ejecución local:** `npm run dev` en `http://localhost:3000`.
+- **Verificación:** `npm run verify`, que genera `reports/verification.json`, de acuerdo con el script existente.
+- **Evidencia individual:** `evidence/individual.md`.
