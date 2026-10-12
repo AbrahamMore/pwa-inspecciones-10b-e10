@@ -147,6 +147,16 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Docum
 - **Uso de IA:** Utilicé IA como apoyo para revisar la implementación existente de la PWA y para elaborar la documentación de la política de sincronización. Revisé manualmente la información generada y la comparé con el código existente antes de incorporarla al proyecto.
 
 
+### Semana 6 — Documentación de capacidades del dispositivo
+
+**Actividad:** Documentación de las capacidades del dispositivo de la Semana 6.
+**Archivos de mi responsabilidad:** `docs/capabilities.md`, `README.md` y esta sección de `evidence/individual.md`.
+**Commit SHA:** Pendiente; se completará después de realizar un commit real.
+**Decisión técnica:** Documentar los permisos mínimos, la solicitud explícita del usuario, los estados de resultado y los fallbacks según el código inspeccionado, sin modificar los módulos de implementación.
+**Pruebas:** Existe `tests/capabilities.spec.ts`. Inspeccioné sus comprobaciones con objetos simulados sobre geolocalización y redondeo de coordenadas, ausencia de permiso de micrófono, liberación de las pistas de cámara y comportamiento de notificaciones cuando falta soporte o no se concede el permiso. No ejecuté la prueba durante esta tarea.
+**Limitación o riesgo:** Las pruebas simuladas no verifican hardware físico ni diálogos reales de permisos. Según la revisión de `src/app/`, los módulos no están conectados a controles de interfaz.
+**Uso de IA:** Utilicé ChatGPT como apoyo para analizar el código y elaborar la documentación. Revisé el código y el contenido documental antes de incorporarlo.
+
 
 
 
