@@ -1,8 +1,16 @@
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = `inspecciones-lab-${CACHE_VERSION}`;
 const OFFLINE_URL = "/offline.html";
 
-const PRECACHE_ASSETS = ["/", "/manifest.webmanifest", OFFLINE_URL];
+// Shell mínimo para que la app abra sin red: inicio, listado, manifest e íconos.
+const PRECACHE_ASSETS = [
+  "/",
+  "/inspecciones",
+  "/manifest.webmanifest",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  OFFLINE_URL,
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -34,10 +42,27 @@ self.addEventListener("message", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  // Navegación (cargar una página): red primero, con fallback offline.
+  // Solo se cachean lecturas (GET) del mismo origen; escrituras y la API de sync pasan directo.
+  if (request.method !== "GET") return;
+  const url = new URL(request.url, self.location.origin);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/api/")) return;
+
+  // Navegación (cargar una página): red primero. Cada página visitada se guarda,
+  // así que sin red se sirve la última copia; si nunca se visitó, el fallback offline.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match(OFFLINE_URL))
+      fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() =>
+          caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL))
+        )
     );
     return;
   }
@@ -47,8 +72,10 @@ self.addEventListener("fetch", (event) => {
     caches.match(request).then((cached) => {
       const fetchPromise = fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(() => cached);
