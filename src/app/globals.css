@@ -57,3 +57,24 @@ dd { font-size: .82rem; font-weight: 700; margin: 0; text-align: right; }
   .inspection-grid { grid-template-columns: 1fr; }
   .section-heading { align-items: start; flex-direction: column; }
 }
+
+
+  /* ---------- Formulario y estado de sincronización ---------- */
+  .form-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 20px 0 32px; }
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-wide { grid-column: 1 / -1; }
+  .form-field label { font-weight: 700; font-size: .9rem; }
+  .form-field input, .form-field textarea { border: 1px solid var(--line); border-radius: 10px; font: inherit; padding: 10px 12px; width: 100%; }
+  .form-grid button, section button { background: var(--accent); border: 0; border-radius: 10px; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: 11px 18px; }
+  button:disabled { cursor: not-allowed; opacity: .55; }
+  .form-errors { background: #ffe9e9; border-radius: 10px; color: #9b1c1c; margin: 0; padding: 12px 12px 12px 30px; }
+  .form-ok { background: var(--success-soft); border-radius: 10px; color: var(--success); margin: 0; padding: 12px; }
+  .sync-banner { border-radius: 10px; font-weight: 700; margin: 0 0 8px; padding: 10px 14px; }
+  .sync-online { background: var(--success-soft); color: var(--success); }
+  .sync-offline { background: var(--warning-soft); color: var(--warning); }
+  .sync-list { display: grid; gap: 14px; list-style: none; margin: 18px 0 0; padding: 0; }
+  .sync-badge { border-radius: 999px; font-size: .75rem; font-weight: 700; padding: 5px 9px; }
+  .sync-pending, .sync-syncing { background: var(--warning-soft); color: var(--warning); }
+  .sync-synced { background: var(--success-soft); color: var(--success); }
+  .sync-error { background: #ffe9e9; color: #9b1c1c; }
+  @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }

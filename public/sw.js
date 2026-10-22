@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const CACHE_NAME = `inspecciones-lab-${CACHE_VERSION}`;
 const OFFLINE_URL = "/offline.html";
 
@@ -6,6 +6,7 @@ const OFFLINE_URL = "/offline.html";
 const PRECACHE_ASSETS = [
   "/",
   "/inspecciones",
+  "/inspecciones/nueva",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",

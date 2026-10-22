@@ -6,13 +6,15 @@ import { LoadingState } from "../../components/loading-state";
 import {
   inspections as syntheticInspections,
   filtrarInspecciones,
-  type Inspection
+  type Inspection,
 } from "../../lib/data/inspections";
 
 type LoadState = "loading" | "error" | "ready";
 
 async function fetchInspections(): Promise<Inspection[]> {
-  return new Promise((resolve) => setTimeout(() => resolve(syntheticInspections), 300));
+  return new Promise((resolve) =>
+    setTimeout(() => resolve(syntheticInspections), 300),
+  );
 }
 
 export default function InspeccionesPage() {
@@ -36,7 +38,8 @@ export default function InspeccionesPage() {
     };
   }, []);
 
-  if (state === "loading") return <LoadingState message="Cargando inspecciones…" />;
+  if (state === "loading")
+    return <LoadingState message="Cargando inspecciones…" />;
 
   if (state === "error") {
     return (
@@ -51,6 +54,9 @@ export default function InspeccionesPage() {
   return (
     <main className="page-shell">
       <h1>Inspecciones</h1>
+      <p>
+        <Link href="/inspecciones/nueva">+ Nueva inspección</Link>
+      </p>
       <label htmlFor="q">Buscar</label>
       <input
         id="q"
