@@ -8,6 +8,9 @@ export interface QueuedInspection {
     summary: string;
     inspector: string;
     findings: string;
+    // Evidencia opcional (Semana 6): foto comprimida como data URL y ubicación aproximada.
+    photo?: string;
+    geo?: { lat: number; lon: number; precisionM: number };
   };
   createdAt: string;
   updatedAt: string;
