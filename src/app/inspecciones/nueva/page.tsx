@@ -3,16 +3,9 @@
 import React, { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { inspections } from "../../../lib/data/inspections";
-import { useInspectionSync } from "../../../lib/sync/use-inspection-sync";
+import { useSync } from "../../../components/sync-provider";
 import { validarPayload } from "../../../lib/sync/validation";
-import type { SyncStatus } from "../../../lib/storage/schema";
-
-const ETIQUETAS: Record<SyncStatus, string> = {
-  pending: "Pendiente de enviar",
-  syncing: "Enviando…",
-  synced: "Sincronizada",
-  error: "Error: toca «Sincronizar ahora»",
-};
+import { ETIQUETAS_SYNC } from "../../../lib/sync/labels";
 
 const laboratorios = Array.from(new Set(inspections.map((i) => i.location)));
 
@@ -23,7 +16,7 @@ function fechaLocalHoy(): string {
 }
 
 export default function NuevaInspeccionPage() {
-  const { items, online, syncing, agregar, sincronizar } = useInspectionSync();
+  const { items, online, syncing, agregar, sincronizar } = useSync();
   const [fecha, setFecha] = useState("");
   const [errores, setErrores] = useState<string[]>([]);
   const [mensaje, setMensaje] = useState("");
@@ -135,7 +128,7 @@ export default function NuevaInspeccionPage() {
           <ul className="sync-list">
             {items.map((item) => (
               <li key={item.clientId} className="inspection-card">
-                <span className={`sync-badge sync-${item.status}`}>{ETIQUETAS[item.status]}</span>
+                <span className={`sync-badge sync-${item.status}`}>{ETIQUETAS_SYNC[item.status]}</span>
                 <h3>{item.payload.location}</h3>
                 <p className="muted">
                   {item.payload.date} · {item.payload.inspector}

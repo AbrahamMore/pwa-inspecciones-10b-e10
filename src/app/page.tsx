@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AppShell } from "../components/app-shell";
 import { inspections as syntheticInspections, type Inspection } from "../lib/data/inspections";
 
@@ -75,7 +76,9 @@ export default function HomePage() {
                   <span className={`badge badge-${inspection.status}`}>{inspection.statusLabel}</span>
                   <span className="muted">{inspection.date}</span>
                 </div>
-                <h3>{inspection.location}</h3>
+                <h3>
+                  <Link href={`/inspecciones/${inspection.id}`}>{inspection.location}</Link>
+                </h3>
                 <p>{inspection.summary}</p>
                 <dl>
                   <div>

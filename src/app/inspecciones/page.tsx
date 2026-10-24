@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LoadingState } from "../../components/loading-state";
+import { useSync } from "../../components/sync-provider";
+import { ETIQUETAS_SYNC } from "../../lib/sync/labels";
 import {
   inspections as syntheticInspections,
   filtrarInspecciones,
@@ -21,6 +23,7 @@ export default function InspeccionesPage() {
   const [state, setState] = useState<LoadState>("loading");
   const [items, setItems] = useState<Inspection[]>([]);
   const [query, setQuery] = useState("");
+  const { items: capturadas } = useSync();
 
   useEffect(() => {
     let active = true;
@@ -50,6 +53,13 @@ export default function InspeccionesPage() {
   }
 
   const filtered = filtrarInspecciones(items, query);
+  const q = query.trim().toLowerCase();
+  const capturadasFiltradas = capturadas.filter(
+    (c) =>
+      q === "" ||
+      c.payload.location.toLowerCase().includes(q) ||
+      c.payload.findings.toLowerCase().includes(q)
+  );
 
   return (
     <main className="page-shell">
@@ -80,6 +90,34 @@ export default function InspeccionesPage() {
           ))}
         </ul>
       )}
+
+      <section aria-labelledby="capturadas" className="content-section">
+        <h2 id="capturadas">Capturadas en este dispositivo ({capturadasFiltradas.length})</h2>
+        {capturadasFiltradas.length === 0 ? (
+          <p className="state-message">
+            {capturadas.length === 0 ? (
+              <>
+                Aún no has registrado inspecciones. <Link href="/inspecciones/nueva">Registrar la primera</Link>
+              </>
+            ) : (
+              "Ninguna de tus inspecciones coincide con la búsqueda."
+            )}
+          </p>
+        ) : (
+          <ul className="sync-list">
+            {capturadasFiltradas.map((c) => (
+              <li key={c.clientId} className="inspection-card">
+                <span className={`sync-badge sync-${c.status}`}>{ETIQUETAS_SYNC[c.status]}</span>
+                <h3>{c.payload.location}</h3>
+                <p className="muted">
+                  {c.payload.date} · {c.payload.inspector}
+                </p>
+                <p>{c.payload.findings}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }

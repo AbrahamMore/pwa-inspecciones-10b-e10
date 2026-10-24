@@ -1,11 +1,14 @@
-import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import type { Metadata, Viewport } from "next";
 import { SwRegister } from "../components/sw-register";
+import { SyncProvider } from "../components/sync-provider";
+import { AppNav } from "../components/app-nav";
 
 export const metadata: Metadata = {
   title: "Inspecciones de laboratorio",
   description: "Proyecto base de Aplicaciones Web Progresivas",
   manifest: "/manifest.webmanifest",
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/icon-192.png" },
 };
 
 export const viewport: Viewport = {
@@ -19,7 +22,10 @@ export default function RootLayout({
     <html lang="es-MX">
       <body>
         <SwRegister />
-        {children}
+        <SyncProvider>
+          <AppNav />
+          {children}
+        </SyncProvider>
       </body>
     </html>
   );
