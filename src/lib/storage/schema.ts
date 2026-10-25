@@ -30,8 +30,14 @@ function hasLocalStorage(): boolean {
 
 export function readQueue(): QueuedInspection[] {
   if (!hasLocalStorage()) return memoryStore;
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? (JSON.parse(raw) as QueuedInspection[]) : [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const data: unknown = raw ? JSON.parse(raw) : [];
+    // Si el dato está dañado o no es una lista, la app arranca con la cola vacía en vez de romperse.
+    return Array.isArray(data) ? (data as QueuedInspection[]) : [];
+  } catch {
+    return [];
+  }
 }
 
 export function writeQueue(queue: QueuedInspection[]): void {
