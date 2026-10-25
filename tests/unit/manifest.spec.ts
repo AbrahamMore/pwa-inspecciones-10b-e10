@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const root = resolve(import.meta.dirname, "..");
+const root = resolve(import.meta.dirname, "..", "..");
 
 const manifestRaw = await readFile(resolve(root, "public/manifest.webmanifest"), "utf8");
 const manifest = JSON.parse(manifestRaw);

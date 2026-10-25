@@ -5,9 +5,9 @@ import {
   inspections,
   filtrarInspecciones,
   getInspeccionById
-} from "../src/lib/data/inspections";
-import { LoadingState } from "../src/components/loading-state";
-import DetalleInspeccionPage from "../src/app/inspecciones/[id]/page";
+} from "../../src/lib/data/inspections";
+import { LoadingState } from "../../src/components/loading-state";
+import DetalleInspeccionPage from "../../src/app/inspecciones/[id]/page";
 
 // 1. Filtrado real: debe reducir resultados con una búsqueda válida.
 const filtradoTodo = filtrarInspecciones(inspections, "");

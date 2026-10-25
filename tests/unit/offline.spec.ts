@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, access } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const root = resolve(import.meta.dirname, "..");
+const root = resolve(import.meta.dirname, "..", "..");
 
 const sw = await readFile(resolve(root, "public/sw.js"), "utf8");
 

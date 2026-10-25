@@ -3,11 +3,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { AppNav } from "../src/components/app-nav";
-import { SyncProvider } from "../src/components/sync-provider";
-import { AppShell } from "../src/components/app-shell";
+import { AppNav } from "../../src/components/app-nav";
+import { SyncProvider } from "../../src/components/sync-provider";
+import { AppShell } from "../../src/components/app-shell";
 
-const root = resolve(import.meta.dirname, "..");
+const root = resolve(import.meta.dirname, "..", "..");
 
 // La navegación global lleva a las tres pantallas principales y muestra el estado de conexión.
 const nav = renderToStaticMarkup(createElement(SyncProvider, null, createElement(AppNav)));

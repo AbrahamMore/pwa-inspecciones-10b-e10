@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { obtenerUbicacion, redondear } from "../src/lib/device/geolocation";
-import { abrirCamara, cerrarCamara, CAMERA_FALLBACK_INPUT } from "../src/lib/device/camera";
-import { leerPermiso, pedirPermiso, mostrarRecordatorio } from "../src/lib/notifications/client";
+import { obtenerUbicacion, redondear } from "../../src/lib/device/geolocation";
+import { abrirCamara, cerrarCamara, CAMERA_FALLBACK_INPUT } from "../../src/lib/device/camera";
+import { leerPermiso, pedirPermiso, mostrarRecordatorio } from "../../src/lib/notifications/client";
 
 // --- Geolocalización ---
 assert.equal((await obtenerUbicacion(null as never)).status, "unsupported");
