@@ -1,4 +1,5 @@
 import type { ItemEntrante } from "../sync/validation";
+import { resolveConflict } from "../sync/conflict-policy";
 
 export type Recibida = ItemEntrante & { receivedAt: string };
 export type Resultado = "created" | "duplicate" | "updated";
@@ -10,7 +11,8 @@ const almacen: Map<string, Recibida> = (g.__inspeccionesStore ??= new Map());
 
 /**
  * Idempotente por clientId: reenviar el mismo registro NO crea un duplicado.
- * Si llega el mismo clientId con un updatedAt más nuevo, gana el más reciente (last-write-wins).
+ * Si llega el mismo clientId con otra versión, decide la política de conflictos
+ * (src/lib/sync/conflict-policy.ts): gana el updatedAt más reciente (last-write-wins).
  */
 export function recibir(item: ItemEntrante, db: Map<string, Recibida> = almacen): Resultado {
   const actual = db.get(item.clientId);
@@ -27,11 +29,12 @@ export function recibir(item: ItemEntrante, db: Map<string, Recibida> = almacen)
     guardar();
     return "created";
   }
-  if (Date.parse(item.updatedAt) > Date.parse(actual.updatedAt)) {
+  // "local" = la versión que llega del cliente es más nueva que la guardada.
+  if (resolveConflict(item, actual) === "local") {
     guardar();
     return "updated";
   }
-  return "duplicate";
+  return "duplicate"; // gana lo ya guardado, o es el mismo registro reenviado
 }
 
 export function listar(db: Map<string, Recibida> = almacen): Recibida[] {
