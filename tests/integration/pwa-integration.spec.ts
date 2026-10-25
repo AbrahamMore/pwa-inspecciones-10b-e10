@@ -3,7 +3,7 @@ import { readFile, access } from "node:fs/promises";
 import { resolve } from "node:path";
 import vm from "node:vm";
 
-const root = resolve(import.meta.dirname, "..");
+const root = resolve(import.meta.dirname, "..", "..");
 
 // 1) Cada ícono declarado en el manifest existe y es un PNG del tamaño declarado.
 const manifest = JSON.parse(await readFile(resolve(root, "public/manifest.webmanifest"), "utf8"));

@@ -71,3 +71,49 @@ En esta ejecución, `npm ci`, `npm test`, `npm run build`, `npm run verify` y `n
 - **Ejecución local:** `npm run dev` en `http://localhost:3000`.
 - **Verificación:** `npm run verify`, que genera `reports/verification.json`, de acuerdo con el script existente.
 - **Evidencia individual:** `evidence/individual.md`.
+
+
+
+## Pruebas e integración continua (Semana 8)
+
+Estrategia completa (pirámide, trade-offs, fallos encontrados y límites): [`docs/test-strategy.md`](docs/test-strategy.md).
+
+| Nivel | Carpeta | Qué comprueba | Comando |
+|---|---|---|---|
+| Unitarias | `tests/unit/` | Lógica aislada: cola, reintentos, conflictos, validación, idempotencia, módulos de dispositivo, service worker | `npm run test:unit` |
+| Integración | `tests/integration/` | Piezas juntas sin navegador: cola → API real, conflictos, componentes de navegación y de dispositivo | `npm run test:integration` |
+| E2E | `tests/e2e/` | Flujo crítico en un Chromium real contra la build de producción (Playwright) | `npm run test:e2e` |
+
+Todas las pruebas usan datos sintéticos.
+
+### Setup
+
+```bash
+node --version      # Node 20.19 o posterior
+npm ci
+npx playwright install chromium   # solo la primera vez (descarga el navegador, ~200 MB)
+```
+
+### Ejecución y verificación
+
+```bash
+npm run verify        # estructura + unitarias + integración + build -> reports/verification.json (equivalente: make verify)
+npm run test:e2e      # construye la app, la levanta en producción (puerto 3100) y ejecuta las pruebas E2E
+```
+
+`npm run verify` **no incluye** las E2E a propósito: debe funcionar con solo `npm ci`, sin navegador instalado. Las E2E se ejecutan con `npm run test:e2e` y en el trabajo `e2e` de GitHub Actions.
+
+### Integración continua
+
+`.github/workflows/academic-evaluation.yml` se ejecuta en cada `push` y `pull_request`:
+
+1. `verify`: `npm ci` → pruebas unitarias → pruebas de integración → `npm run verify` (estructura, pruebas y build).
+2. `e2e` (si `verify` pasó): instala Chromium y ejecuta Playwright; guarda el reporte HTML y las trazas como artefacto.
+
+### Evidencia
+
+El commit SHA, el enlace a la ejecución de Actions y la sección individual de cada integrante están en `evidence/individual.md`.
+
+### Límites
+
+Solo se prueba en Chromium; no se mide la cobertura en porcentaje; la cámara real y los diálogos de permisos no se automatizan (se simulan); el servidor de sincronización guarda en memoria. Detalle en `docs/test-strategy.md`, sección 5.

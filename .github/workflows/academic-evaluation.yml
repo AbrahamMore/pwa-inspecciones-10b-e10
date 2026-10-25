@@ -1,0 +1,60 @@
+name: Evaluación académica — Semana 8
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    name: Instalación, pruebas unitarias e integración, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.6'
+          cache: npm
+      - name: Instalación reproducible
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Pruebas unitarias
+        run: npm run test:unit
+      - name: Pruebas de integración
+        run: npm run test:integration
+      - name: Estructura, pruebas y build (verificación del curso)
+        run: npm run verify
+      - name: Guardar reporte técnico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: week-08-verification
+          if-no-files-found: warn
+          path: reports/verification.json
+
+  e2e:
+    name: Pruebas E2E del flujo crítico (Playwright)
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.6'
+          cache: npm
+      - name: Instalación reproducible
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Instalar Chromium para Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Pruebas E2E (construye y levanta la app en modo producción)
+        run: npm run test:e2e
+      - name: Guardar reporte y trazas de Playwright
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: week-08-e2e-report
+          if-no-files-found: warn
+          path: |
+            playwright-report/
+            test-results/

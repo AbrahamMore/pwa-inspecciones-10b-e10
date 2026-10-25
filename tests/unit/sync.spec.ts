@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { clearQueue, readQueue } from "../src/lib/storage/schema";
-import { enqueueInspection, getPendingItems, syncQueue } from "../src/lib/sync/queue";
-import { resolveConflict } from "../src/lib/sync/conflict-policy";
+import { clearQueue, readQueue } from "../../src/lib/storage/schema";
+import { enqueueInspection, getPendingItems, syncQueue } from "../../src/lib/sync/queue";
+import { resolveConflict } from "../../src/lib/sync/conflict-policy";
 
 const samplePayload = {
   location: "Laboratorio de Redes",

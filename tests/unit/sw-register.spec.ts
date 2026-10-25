@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { registerServiceWorker, type SwEnv } from "../src/lib/pwa/register-service-worker";
+import { registerServiceWorker, type SwEnv } from "../../src/lib/pwa/register-service-worker";
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
 const fakeSw = (calls: string[]): SwEnv["serviceWorker"] => ({

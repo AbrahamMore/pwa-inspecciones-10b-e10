@@ -20,14 +20,14 @@ export function validarPayload(p: unknown): string[] {
   const o = p as Record<string, unknown>;
   const errores: string[] = [];
 
-  const requerido = (campo: "location" | "inspector" | "findings", etiqueta: string) => {
+  const requerido = (campo: "location" | "inspector" | "findings", etiqueta: string, plural = false) => {
     const v = o[campo];
-    if (!texto(v) || v.trim() === "") errores.push(`${etiqueta} es obligatorio.`);
+    if (!texto(v) || v.trim() === "") errores.push(`${etiqueta} ${plural ? "son obligatorios" : "es obligatorio"}.`);
     else if (v.length > LIMITES[campo]) errores.push(`${etiqueta} supera ${LIMITES[campo]} caracteres.`);
   };
   requerido("location", "El laboratorio");
   requerido("inspector", "El responsable");
-  requerido("findings", "Los hallazgos");
+  requerido("findings", "Los hallazgos", true);
 
   if (!texto(o.date) || !/^\d{4}-\d{2}-\d{2}$/.test(o.date)) errores.push("La fecha no es válida.");
   if (!texto(o.summary)) errores.push("El resumen debe ser texto.");

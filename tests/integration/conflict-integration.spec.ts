@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { resolveConflict } from "../src/lib/sync/conflict-policy";
-import { recibir, listar, type Recibida } from "../src/lib/server/inspections-store";
-import { POST } from "../src/app/api/inspecciones/route";
+import { resolveConflict } from "../../src/lib/sync/conflict-policy";
+import { recibir, listar, type Recibida } from "../../src/lib/server/inspections-store";
+import { POST } from "../../src/app/api/inspecciones/route";
 
 const payload = { location: "Laboratorio de Cómputo", date: "2026-10-24", inspector: "Ana", summary: "", findings: "Original" };
 const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
