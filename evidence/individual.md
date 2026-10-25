@@ -252,10 +252,10 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Creé
 
 ### Semana 8
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Agregué 3 pruebas unitarias (`queue-retries.spec.ts`, `storage-schema.spec.ts`, `labels.spec.ts`) y 2 E2E (`capacidades.spec.ts`, `datos-danados.spec.ts`), y la corrección de `src/lib/storage/schema.ts`, para que `readQueue` devuelva una cola vacía si el JSON guardado está dañado. Enlace al PR: <PEGAR ENLACE>
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Agregué 3 pruebas unitarias (`queue-retries.spec.ts`, `storage-schema.spec.ts`, `labels.spec.ts`) y 2 E2E (`capacidades.spec.ts`, `datos-danados.spec.ts`), y la corrección de `src/lib/storage/schema.ts`, para que `readQueue` devuelva una cola vacía si el JSON guardado está dañado. Enlace al PR: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/pull/19
 
-- **Commit SHA:** <PEGAR SHA>
-- **Ejecución de GitHub Actions:** <PEGAR ENLACE a /actions/runs/NÚMERO>
+- **Commit SHA:** 806589422eece778fe725a8a00ea0303c7ddc656
+- **Ejecución de GitHub Actions:** https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/actions/runs/40228297437
 - **Decisión que puedo explicar y por qué:** `storage-schema.spec.ts` usa un `localStorage` falso porque en Node no existe el real, y así puedo controlar exactamente qué hay guardado y simular un JSON dañado. Un dato dañado debe dar una cola vacía y no una excepción, para que la app abra y se recupere al volver a guardar.
 - **Comando o prueba que ejecuté:** En Linux con Node v20.20.2: `npm ci`, `npx playwright install chromium`, `npm run verify` y `npm run test:e2e`.
 - **Resultado real que observé:** `verify`: 20/20 archivos de prueba pasaron y `Verificación técnica: pass`. `test:e2e`: 7 passed.
