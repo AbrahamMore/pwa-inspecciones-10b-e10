@@ -95,3 +95,20 @@ dd { font-size: .82rem; font-weight: 700; margin: 0; text-align: right; }
 .btn-ghost { border: 1px solid rgba(255,255,255,.5); color: white; }
 .inspection-card h3 a { color: inherit; text-decoration: none; }
 .inspection-card h3 a:hover { text-decoration: underline; }
+
+/* ---------- Capacidades del dispositivo (foto, ubicación, avisos) ---------- */
+.device-panel { border: 1px solid var(--line); border-radius: 12px; margin: 0; padding: 14px 16px; }
+.device-panel legend { font-weight: 700; padding: 0 6px; }
+.device-row { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; }
+.device-panel .dev-btn { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; color: #1e3a8a; cursor: pointer; display: inline-block; font: inherit; font-weight: 700; padding: 9px 14px; }
+.device-panel .dev-btn:hover { background: #e0e7ff; }
+.device-panel .dev-quiet { background: transparent; border-color: var(--line); color: var(--muted); }
+.dev-file { position: relative; }
+.dev-file input { cursor: pointer; inset: 0; opacity: 0; position: absolute; width: 100%; }
+.dev-file:focus-within { outline: 2px solid #2563eb; outline-offset: 2px; }
+.camera-box { margin-top: 12px; }
+.camera-box video { background: #000; border-radius: 10px; display: block; margin-bottom: 10px; max-width: 100%; width: 360px; }
+.device-result { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 0; }
+.device-notice { background: var(--warning-soft); border-radius: 10px; color: var(--warning); margin: 12px 0 0; padding: 10px 12px; }
+.photo-preview { border-radius: 10px; display: block; max-height: 160px; max-width: 100%; }
+.sync-list .inspection-card p { min-height: 0; }

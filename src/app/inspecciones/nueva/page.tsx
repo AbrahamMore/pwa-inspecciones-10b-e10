@@ -6,6 +6,9 @@ import { inspections } from "../../../lib/data/inspections";
 import { useSync } from "../../../components/sync-provider";
 import { validarPayload } from "../../../lib/sync/validation";
 import { ETIQUETAS_SYNC } from "../../../lib/sync/labels";
+import { DevicePanel } from "../../../components/device-panel";
+import { mostrarRecordatorio } from "../../../lib/notifications/client";
+import type { Ubicacion } from "../../../lib/device/geolocation";
 
 const laboratorios = Array.from(new Set(inspections.map((i) => i.location)));
 
@@ -20,6 +23,8 @@ export default function NuevaInspeccionPage() {
   const [fecha, setFecha] = useState("");
   const [errores, setErrores] = useState<string[]>([]);
   const [mensaje, setMensaje] = useState("");
+  const [photo, setPhoto] = useState<string | undefined>();
+  const [geo, setGeo] = useState<Ubicacion | undefined>();
 
   useEffect(() => setFecha(fechaLocalHoy()), []);
 
@@ -35,6 +40,8 @@ export default function NuevaInspeccionPage() {
       inspector: campo("inspector"),
       summary: campo("summary"),
       findings: campo("findings"),
+      ...(photo ? { photo } : {}),
+      ...(geo ? { geo } : {}),
     };
 
     const problemas = validarPayload(payload);
@@ -44,13 +51,25 @@ export default function NuevaInspeccionPage() {
       return;
     }
 
-    agregar(payload);
+    try {
+      agregar(payload);
+    } catch {
+      setMensaje("");
+      setErrores(["No hay espacio en el dispositivo para guardar. Quita la foto e intenta de nuevo."]);
+      return;
+    }
     setMensaje(
       online
         ? "Inspección guardada. Enviando al servidor…"
         : "Inspección guardada en este dispositivo. Se enviará cuando vuelva la conexión."
     );
+    if (!online) {
+      // Recordatorio local; si no hay permiso o soporte, el aviso de arriba ya cubre el caso.
+      void mostrarRecordatorio("Inspección guardada sin conexión", "Se enviará cuando vuelva la red.");
+    }
     form.reset();
+    setPhoto(undefined);
+    setGeo(undefined);
     setFecha(fechaLocalHoy());
   }
 
@@ -98,6 +117,8 @@ export default function NuevaInspeccionPage() {
           <textarea id="findings" name="findings" rows={4} required maxLength={1000} />
         </div>
 
+        <DevicePanel photo={photo} geo={geo} onPhoto={setPhoto} onGeo={setGeo} />
+
         {errores.length > 0 && (
           <ul role="alert" className="form-errors form-wide">
             {errores.map((e) => (
@@ -134,6 +155,12 @@ export default function NuevaInspeccionPage() {
                   {item.payload.date} · {item.payload.inspector}
                 </p>
                 <p>{item.payload.findings}</p>
+                {item.payload.photo && <img src={item.payload.photo} alt="Foto de la inspección" className="photo-preview" />}
+                {item.payload.geo && (
+                  <p className="muted">
+                    Ubicación: {item.payload.geo.lat}, {item.payload.geo.lon}
+                  </p>
+                )}
                 {item.status === "error" && item.lastError && <p className="muted">{item.lastError}</p>}
               </li>
             ))}

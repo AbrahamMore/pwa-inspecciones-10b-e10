@@ -113,6 +113,12 @@ export default function InspeccionesPage() {
                   {c.payload.date} · {c.payload.inspector}
                 </p>
                 <p>{c.payload.findings}</p>
+                {c.payload.photo && <img src={c.payload.photo} alt="Foto de la inspección" className="photo-preview" />}
+                {c.payload.geo && (
+                  <p className="muted">
+                    Ubicación: {c.payload.geo.lat}, {c.payload.geo.lon}
+                  </p>
+                )}
               </li>
             ))}
           </ul>
