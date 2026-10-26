@@ -76,16 +76,16 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Imple
 
 ### Semana 8
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Organicé las pruebas del proyecto en una pirámide: reorganicé las pruebas existentes en `tests/unit/` y `tests/integration/`, separé pruebas unitarias nuevas (`validation`, `image`, `inspections-store`, `runner`), agregué pruebas E2E con Playwright en `tests/e2e/flujo-critico.spec.ts`, el ejecutor `scripts/run-tests.mjs`, `docs/test-strategy.md` y el workflow `.github/workflows/academic-evaluation.yml`. Enlace al PR: <PEGAR AQUÍ EL ENLACE AL PR DE LA SEMANA 8>
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Organicé las pruebas del proyecto en una pirámide: reorganicé las pruebas existentes en `tests/unit/` y `tests/integration/`, separé pruebas unitarias nuevas (`validation`, `image`, `inspections-store`, `runner`), agregué pruebas E2E con Playwright en `tests/e2e/flujo-critico.spec.ts`, el ejecutor `scripts/run-tests.mjs`, `docs/test-strategy.md` y el workflow `.github/workflows/academic-evaluation.yml`. Enlace al PR: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/commit/6b47554d54bea16fe3db71c62bced260e939f2d0 (commit de fusión del PR en main)
 
-- **Commit SHA:** <PEGAR AQUÍ EL SHA DEL ÚLTIMO COMMIT DE MI PR>
-- **Ejecución de GitHub Actions:** <PEGAR AQUÍ EL ENLACE; trabajos `verify` y `e2e`>
+- **Commit SHA:** 482d7666ee0b94a8c5635dbef172c7bf324355ca
+- **Ejecución de GitHub Actions:** https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/actions/runs/40204672839 (trabajos `verify` y `e2e` en verde)
 - **Decisión que puedo explicar y por qué:** Dejé las pruebas E2E fuera de `npm run verify` y las corrí en un trabajo aparte de Actions. `verify` es el comando que se ejecuta tras un `npm ci` limpio y no instala navegadores; si incluyera Playwright, fallaría en cualquier máquina sin Chromium. A cambio, las E2E se ejecutan con `npm run test:e2e` y en el trabajo `e2e` de CI, no con solo `npm ci` + `verify`.
 - **Comando o prueba que ejecuté:** `npm ci`, `npm run verify`, `npx playwright install chromium` y `npm run test:e2e`, en Windows con Node 20.
-- **Resultado real que observé:** `npm run verify`: 17 de 17 archivos de prueba pasaron (12 unitarios y 5 de integración), el build de Next.js 14.2.35 compiló las 6 rutas y terminó con "Verificación técnica: pass". `npm run test:e2e`: 5 pruebas pasaron en Chromium (1.0 min). En Actions: <COMPLETAR: `verify` y `e2e` en verde, o el fallo que apareció y cómo se corrigió>.
+- **Resultado real que observé:** `npm run verify`: 17 de 17 archivos de prueba pasaron (12 unitarios y 5 de integración), el build de Next.js 14.2.35 compiló las 6 rutas y terminó con "Verificación técnica: pass". `npm run test:e2e`: 5 pruebas pasaron en Chromium (1.0 min). En Actions: `verify` y `e2e` en verde.
 - **Qué verifica esa prueba y qué no verifica:** Verifica el flujo crítico: capturar sin conexión, que el registro no se pierda y que se sincronice una sola vez, incluso con reintentos, respuestas perdidas o envíos simultáneos; además, que la app abre sin conexión y se puede recorrer solo con clics. No verifica otros navegadores distintos de Chromium, la cámara real en un dispositivo físico ni los diálogos reales de permisos (se simulan), ni la persistencia real de un servidor (es en memoria). No mide cobertura en porcentaje.
 - **Limitación, dificultad o riesgo que identifiqué:** Algunas pruebas leen el código fuente como texto (por ejemplo, que `install` no llame `skipWaiting`): son baratas pero frágiles ante refactors. La prueba E2E "recargar no duplica" usa una espera fija de 1 s que puede causar intermitencia. Además, `npm ci` reportó 3 vulnerabilidades (2 altas, 1 crítica) en dependencias; no ejecuté `npm audit fix --force` para no cambiar versiones sin decisión del equipo. Los fallos encontrados al probar (el service worker que no se registraba, la falta de navegación entre pantallas, un mensaje de validación mal redactado, la actualización segura sin interfaz y la política de conflictos sin conectar al servidor) están en `docs/test-strategy.md`.
-- **Uso de IA:** Usé Claude (Anthropic) para proponer la estructura de la pirámide y para escribir el código de las pruebas, el workflow y el borrador de `docs/test-strategy.md`. Validación humana: apliqué los cambios en mi repositorio, ejecuté yo mismo los comandos de arriba y revisé los resultados, y revisé el contenido de los documentos antes de subirlos. <SOLO SI LO HICISTE: Comprobé que las pruebas detectan fallos rompiendo a propósito la idempotencia del almacén en `src/lib/server/inspections-store.ts`: fallaron las pruebas esperadas y volvieron a pasar al revertir.>
+- **Uso de IA:** Usé Claude (Anthropic) para proponer la estructura de la pirámide y para escribir el código de las pruebas, el workflow y el borrador de `docs/test-strategy.md`. Validación humana: apliqué los cambios en mi repositorio, ejecuté yo mismo los comandos de arriba y revisé los resultados, y revisé el contenido de los documentos antes de subirlos.
 
 
 
@@ -178,7 +178,6 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Docum
 **Limitación o riesgo:** Las pruebas simuladas no verifican hardware físico ni diálogos reales de permisos. Según la revisión de `src/app/`, los módulos no están conectados a controles de interfaz.
 **Uso de IA:** Utilicé ChatGPT como apoyo para analizar el código y elaborar la documentación. Revisé el código y el contenido documental antes de incorporarlo.
 
-## Integrante: Josmar — documentación y verificación
 
 ### Semana 8
 
@@ -194,7 +193,7 @@ Mi contribución consistió en actualizar la documentación técnica del proyect
   - `docs/evidencia-semana8/`: capturas de evidencia de las pruebas manuales.
 
 - **Commit SHA:** `4bc9ddf9c1e169c31b397389579ac1098832e52f`
-- **Ejecución de GitHub Actions:** Pendiente de registrar el enlace y verificar los resultados.
+- **Ejecución de GitHub Actions:** https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/actions/runs/40263310294 (ejecución del PR #20 sobre su commit `1930f37`; `verify` y `e2e` en verde)
 - **Decisión técnica que puedo explicar y por qué:** Se documentó el uso de `localStorage` para conservar los registros pendientes de sincronización, así como el comportamiento de la aplicación cuando no hay conexión. Esta documentación permite identificar cómo se conservan los datos localmente y qué aspectos deben verificarse durante las pruebas.
 - **Comandos o pruebas ejecutadas:** `npm test`, `npm run build` y `npm run test:e2e`, en Windows 11 con Node.js `v20.20.2` y npm `10.8.2`.
 - **Resultado real observado:** Las pruebas unitarias y de integración finalizaron correctamente, con 20 de 20 archivos de prueba aprobados. La compilación de producción terminó correctamente y las pruebas E2E finalizaron con 7 pruebas aprobadas en Chromium.
