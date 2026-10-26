@@ -178,8 +178,29 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Docum
 **Limitación o riesgo:** Las pruebas simuladas no verifican hardware físico ni diálogos reales de permisos. Según la revisión de `src/app/`, los módulos no están conectados a controles de interfaz.
 **Uso de IA:** Utilicé ChatGPT como apoyo para analizar el código y elaborar la documentación. Revisé el código y el contenido documental antes de incorporarlo.
 
+## Integrante: Josmar — documentación y verificación
 
+### Semana 8
 
+Mi contribución consistió en actualizar la documentación técnica del proyecto PWA de inspecciones y mantenimiento de laboratorios, documentar el protocolo de pruebas manuales sin conexión y organizar las evidencias correspondientes. También actualicé la estrategia de pruebas y registré los resultados de verificación y las limitaciones encontradas.
+
+- **Archivos modificados o documentados:**
+  - `docs/cache-strategy.md`
+  - `docs/sync-policy.md`
+  - `docs/capabilities.md`
+  - `docs/protocolo-manual-offline.md`
+  - `docs/test-strategy.md`
+  - `evidence/individual.md`
+  - `docs/evidencia-semana8/`: capturas de evidencia de las pruebas manuales.
+
+- **Commit SHA:** `4bc9ddf9c1e169c31b397389579ac1098832e52f`
+- **Ejecución de GitHub Actions:** Pendiente de registrar el enlace y verificar los resultados.
+- **Decisión técnica que puedo explicar y por qué:** Se documentó el uso de `localStorage` para conservar los registros pendientes de sincronización, así como el comportamiento de la aplicación cuando no hay conexión. Esta documentación permite identificar cómo se conservan los datos localmente y qué aspectos deben verificarse durante las pruebas.
+- **Comandos o pruebas ejecutadas:** `npm test`, `npm run build` y `npm run test:e2e`, en Windows 11 con Node.js `v20.20.2` y npm `10.8.2`.
+- **Resultado real observado:** Las pruebas unitarias y de integración finalizaron correctamente, con 20 de 20 archivos de prueba aprobados. La compilación de producción terminó correctamente y las pruebas E2E finalizaron con 7 pruebas aprobadas en Chromium.
+- **Qué verifican estas pruebas y qué no verifican:** Las pruebas automatizadas verifican los comportamientos cubiertos por los casos unitarios, de integración y E2E. No demuestran por sí solas que todos los escenarios físicos de uso sin conexión funcionen correctamente ni sustituyen las pruebas con una cámara y ubicación reales.
+- **Limitaciones, dificultades o riesgos identificados:** No se ejecutó `npm run verify` porque el script invoca internamente comandos de Git y se decidió no utilizarlos. Algunas evidencias visuales no demuestran por sí solas que se haya realizado una recarga completa sin conexión, que el registro específico del paso 5 se haya sincronizado o que no existan duplicados en todos los escenarios. Los enlaces del PR y de GitHub Actions quedan pendientes de verificación.
+- **Uso de IA:** Se utilizó ChatGPT y asistencia de Codex para apoyar la actualización de la documentación, la revisión de los archivos y la organización de las evidencias. La validación se apoyó en la ejecución de pruebas automatizadas y en la revisión de las capturas y resultados disponibles.
 
 
 ## Integrante: Diana Laura Olmos Antonio

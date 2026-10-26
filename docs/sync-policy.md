@@ -1,10 +1,10 @@
-# Política de sincronización — persistencia local e idempotencia
+# Política de sincronización — persistencia local, idempotencia y conflictos
+
+Código principal: `src/lib/storage/schema.ts`, `src/lib/sync/` y `src/app/api/inspecciones/route.ts`.
 
 ## 1. Qué se guarda localmente
 
-Cada inspección creada sin conexión se guarda como una entrada de la cola de sincronización en `src/lib/storage/schema.ts`. El tipo real es `QueuedInspection` y se almacena con todos los campos necesarios para reintentar la entrega y mantener trazabilidad local.
-
-La estructura real es esta:
+Cada inspección capturada se guarda como una entrada de la cola de sincronización (`QueuedInspection`), en `localStorage`, bajo la clave `inspecciones-sync-queue-v1`:
 
 ```ts
 export interface QueuedInspection {
@@ -15,6 +15,8 @@ export interface QueuedInspection {
     summary: string;
     inspector: string;
     findings: string;
+    photo?: string;                                   // foto comprimida (data URL)
+    geo?: { lat: number; lon: number; precisionM: number }; // ubicación aproximada
   };
   createdAt: string;
   updatedAt: string;
@@ -24,107 +26,93 @@ export interface QueuedInspection {
 }
 ```
 
-Eso significa que la inspección se guarda con:
-
-- `clientId`: identificador único del registro para evitar duplicados por reintentos.
-- `payload`: datos del hallazgo o inspección (`location`, `date`, `summary`, `inspector`, `findings`).
-- `createdAt`: marca de tiempo de creación local.
-- `updatedAt`: marca de tiempo de la última actualización/resultado.
-- `status`: estado de sincronización (`pending`, `syncing`, `synced`, `error`).
-- `attempts`: número de intentos realizados.
-- `lastError`: último error cuando la operación falla.
-
-La cola se guarda como un arreglo de `QueuedInspection` y se persiste en `localStorage` bajo la clave `inspecciones-sync-queue-v1`.
+- `clientId`: identificador único del registro, base de la idempotencia.
+- `payload`: los datos de la inspección. `photo` y `geo` son opcionales.
+- `createdAt` / `updatedAt`: marcas de tiempo; `updatedAt` decide los conflictos.
+- `status`, `attempts`, `lastError`: seguimiento de la sincronización.
 
 ## 2. Almacenamiento: localStorage, no IndexedDB
 
-En esta semana el proyecto usa `localStorage` para persistir la cola de sincronización. La lógica real está en `src/lib/storage/schema.ts`:
+La cola se lee y se escribe con `readQueue()`, `writeQueue()` y `clearQueue()`.
 
-- `readQueue()` lee la clave `inspecciones-sync-queue-v1`.
-- `writeQueue()` guarda el arreglo usando `JSON.stringify(queue)`.
-- `clearQueue()` reinicia la cola.
+Se eligió `localStorage` porque el alcance es un flujo con datos sintéticos y una cola pequeña, y su API síncrona es simple. Limitaciones reales:
 
-La decisión se justifica porque el alcance actual es un flujo local y sintético, con una cola pequeña y sin backend aún implementado. `localStorage` es síncrono y funciona bien para este tipo de persistencia simple; sin embargo, tiene limitaciones reales:
+- es síncrono y puede bloquear el hilo principal con mucho volumen;
+- su capacidad es limitada (del orden de unos pocos MB), por lo que las fotos la llenan rápido; por eso se comprimen a 800 px y el formulario avisa si ya no hay espacio para guardar;
+- los registros sincronizados **no se eliminan** de la cola: se conservan para mostrar su estado, de modo que el uso de espacio crece con el tiempo.
 
-- es síncrono, por lo que puede bloquear más el hilo principal si se usa con mucho volumen;
-- tiene capacidad de almacenamiento limitada en comparación con IndexedDB;
-- no está pensado para objetos grandes o flujos intensivos de escritura.
+Si el dato guardado está dañado o no es una lista, `readQueue()` devuelve una cola vacía en vez de lanzar un error, para que la app siga abriendo (la cola se reconstruye al volver a guardar).
 
-`IndexedDB` sería una alternativa más robusta para colas de datos más grandes o cambios más frecuentes, pero en esta semana el proyecto acepta `localStorage` como solución adecuada al alcance y a los datos sintéticos. La decisión no implica que sea la mejor opción a futuro; solo que es la implementación real vigente del proyecto.
+`IndexedDB` sería más robusto para volúmenes mayores o fotos; no se usó en este alcance.
 
-## 3. Idempotencia: cómo se evitan duplicados
+## 3. Cuándo se sincroniza
 
-El elemento clave es `clientId`.
+La sincronización (`syncQueue`) corre:
 
-- Se genera con `crypto.randomUUID()` al crear la inspección en `enqueueInspection()`.
-- Se genera una sola vez al crear el registro.
-- No se reemplaza en reintentos posteriores.
-- Durante `syncQueue()`, el mismo `clientId` se reenvía sin cambios en cada intento.
+- justo después de guardar una inspección;
+- al abrir la aplicación, para enviar lo que haya quedado pendiente;
+- cuando el navegador avisa que volvió la red (evento `online`);
+- cuando la persona pulsa **Sincronizar ahora**.
 
-Esto es la idempotencia de la comprobación local: si el backend real o la capa de sincronización recibe el mismo registro varias veces con el mismo `clientId`, no debería tratarse como un registro nuevo distinto. La intención es evitar duplicados cuando posteriormente exista un backend real que reciba la cola.
+Es global: está en un proveedor (`SyncProvider`) de toda la app, así que un registro pendiente se envía desde cualquier pantalla. Reglas del sincronizador (`src/lib/sync/runner.ts`): **sin red no intenta enviar** y **solo corre una sincronización a la vez**.
 
-La lógica actual no crea un nuevo `clientId` en cada reintento; la reintentos reutiliza exactamente el mismo valor asociado al registro original.
+## 4. Idempotencia: cómo se evitan duplicados
 
-## 4. Política de reintentos
+- El `clientId` se genera una sola vez, con `crypto.randomUUID()`, al encolar el registro.
+- No cambia en los reintentos: cada intento reenvía exactamente el mismo `clientId`.
+- El servidor (`recibir()` en `src/lib/server/inspections-store.ts`) usa el `clientId` como llave. Si ya existe, **no crea otro registro**.
 
-La política real está implementada en `src/lib/sync/queue.ts`.
+Casos cubiertos por pruebas: reenviar el mismo registro varias veces, perder la respuesta del servidor y reintentar, y enviar seis veces a la vez el mismo registro (por ejemplo, desde dos pestañas): en todos los casos queda **un solo registro**.
 
-Estados:
+## 5. Reintentos
 
-- `pending`: el registro está listo para sincronizar.
-- `syncing`: el registro está en proceso de sincronización.
-- `synced`: la sincronización fue exitosa.
-- `error`: el registro alcanzó el máximo de reintentos y quedó para revisión.
+Implementados en `src/lib/sync/queue.ts`:
 
-Regla de reintento:
+- Antes de cada envío el registro pasa a `syncing` y `attempts` aumenta en 1.
+- Si el envío termina bien (`ok: true`) pasa a `synced`.
+- Si falla (respuesta no válida o excepción de red), se guarda el mensaje en `lastError`. Si `attempts` es menor que `MAX_ATTEMPTS` (3), vuelve a `pending`; al llegar a 3 queda en `error`.
+- Los registros `synced` se omiten.
+- **Un registro en `error` sí se vuelve a intentar** en la siguiente sincronización (al volver la red, al abrir la app o con el botón), y los intentos siguen contando. `error` indica "falló 3 veces o más", no "se dejó de intentar". `getPendingItems()` devuelve los registros `pending` y `error`.
+- Un fallo en un registro no impide enviar los demás.
 
-- `MAX_ATTEMPTS` es `3`.
-- Cada vez que se intenta sincronizar un elemento, antes de llamar a `syncFn(item)` se marca como `syncing` y se incrementa `attempts`.
-- Si `syncFn(item)` devuelve `{ ok: true }`, el registro pasa a `synced` y `updatedAt` se actualiza con la fecha actual.
-- Si `syncFn(item)` devuelve `{ ok: false }` o lanza un error, se captura en `catch`.
-- Si `attempts >= MAX_ATTEMPTS`, el estado pasa a `error`.
-- Si `attempts < MAX_ATTEMPTS`, el estado vuelve a `pending` para un nuevo intento.
-- `lastError` se conserva con el mensaje del error capturado.
+En la interfaz, cada estado tiene su texto: *Pendiente de enviar*, *Enviando…*, *Sincronizada* y *Error: toca «Sincronizar ahora»*.
 
-De esta forma:
+## 6. API de sincronización
 
-- los fallos se registran; 
-- la cola no se pierde;
-- al producirse 3 errores consecutivos, el elemento queda en `error` y deja de reintentarse automáticamente.
+`POST /api/inspecciones` recibe `{ clientId, payload, createdAt, updatedAt }`:
 
-La función `getPendingItems()` devuelve los registros con estado `pending` o `error`, para que puedan revisarse manualmente.
+| Respuesta | Cuándo |
+|---|---|
+| 201 | Registro nuevo. |
+| 200 | Reenvío del mismo registro (duplicado) o actualización con una versión más reciente. |
+| 400 | El cuerpo no es JSON válido. |
+| 422 | La validación falló (la devuelve con la lista de errores). |
 
-## 5. Política de conflictos
+`GET /api/inspecciones` devuelve los registros recibidos.
 
-La resolución real de conflictos está en `src/lib/sync/conflict-policy.ts`.
+Validación (la usan el formulario y la API, `src/lib/sync/validation.ts`): laboratorio y responsable obligatorios (hasta 80 caracteres), hallazgos obligatorios (hasta 1000), resumen opcional (hasta 300), fecha `AAAA-MM-DD`, `clientId` de 8 a 64 caracteres, foto solo si es una imagen `data:image/` de hasta 600 000 caracteres, y ubicación con latitud entre -90 y 90 y longitud entre -180 y 180.
 
-La implementación usa `Last Write Wins`:
+## 7. Política de conflictos
 
-- compara `updatedAt` del local vs. `updatedAt` del remoto;
-- si el remoto es más reciente, gana el remoto;
-- si el local es más reciente, gana el local;
-- si los dos timestamps son iguales, el resultado es `merge-not-needed`.
+Está en `src/lib/sync/conflict-policy.ts` y **el servidor la usa**: `recibir()` llama a `resolveConflict()`.
 
-La función `resolveConflict(local, remote)` devuelve uno de estos valores:
+Política: *last write wins* por `updatedAt`.
 
-- `"remote"`: el remoto es más reciente.
-- `"local"`: el local es más reciente.
-- `"merge-not-needed"`: ambos timestamps son iguales.
+- Si el registro que llega es más reciente que el guardado, gana el que llega y el servidor responde "actualizado".
+- Si es más viejo o igual, se conserva lo guardado y se responde "duplicado": un reenvío tardío no sobrescribe una versión más nueva.
+- `resolveConflict` devuelve `"local"`, `"remote"` o `"merge-not-needed"`, y lanza un error si se intenta comparar registros con `clientId` distinto.
 
-La comparación también valida identidad del registro:
+Trade-off: es simple y predecible, pero depende de los relojes de los dispositivos; si dos dispositivos editan el mismo registro, el cambio de uno puede perderse.
 
-- si `local.clientId !== remote.clientId`, se lanza un error porque no corresponde al mismo registro al que se quiere resolver conflicto.
+## 8. Cómo se verifica
 
-Esto hace que la política de conflictos sea explícita y determinista, sin depender del orden en que se evaluen los registros.
+- Unitarias: `sync.spec.ts`, `queue-retries.spec.ts`, `storage-schema.spec.ts`, `runner.spec.ts`, `inspections-store.spec.ts`, `validation.spec.ts`.
+- Integración: `sync-integration.spec.ts` (cola → API real, respuesta perdida) y `conflict-integration.spec.ts` (envíos simultáneos y reenvío tardío).
+- E2E: `flujo-critico.spec.ts` (captura sin conexión, una sola sincronización, recargar no duplica) y `datos-danados.spec.ts`.
 
-## 6. Limitaciones
+## 9. Limitaciones
 
-La implementación actual tiene limitaciones claras y reales:
-
-- todavía no existe un backend real de sincronización;
-- `syncFn` desacopla la cola del backend, pero no reemplaza la integración real con un servicio externo;
-- los conflictos se prueban con datos sintéticos, no con estado real del sistema productivo;
-- `localStorage` es suficiente para esta semana, pero tiene restricciones de capacidad y rendimiento frente a `IndexedDB`;
-- la cola local está diseñada para fluidez operativa y recuperación ante desconexión, no para un volumen grande ni para sincronización multiusuario real.
-
-En resumen, la política documentada refleja el comportamiento real del código: persistencia local simple, idempotencia por `clientId`, reintentos controlados con `MAX_ATTEMPTS = 3`, `lastError`, y `Last Write Wins` según `updatedAt`.
+- **El servidor guarda en memoria** (datos sintéticos): se reinicia con el servidor y no se comparte entre instancias en un despliegue sin estado. Las pruebas validan la lógica de idempotencia, no una base de datos real.
+- No hay autenticación ni sincronización multiusuario real.
+- `localStorage` y el crecimiento de la cola (ver sección 2).
+- Las pruebas solo se ejecutan en Chromium.

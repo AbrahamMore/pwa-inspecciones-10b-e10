@@ -1,35 +1,62 @@
-# Capacidades del dispositivo — Semana 6
+# Capacidades del dispositivo — cámara, ubicación y notificaciones
 
-Principios: permiso mínimo, solicitud únicamente por acción del usuario, detección de soporte y fallback siempre disponible.
+Principios: **permiso mínimo**, **solicitud únicamente por acción del usuario**, detección de soporte y **alternativa siempre disponible**.
 
-| Capacidad | Para qué se usa | Permiso | Cuándo se pide | Datos mínimos | Fallback |
+Módulos: `src/lib/device/camera.ts`, `src/lib/device/geolocation.ts`, `src/lib/device/image.ts` y `src/lib/notifications/client.ts`. Interfaz: `src/components/device-panel.tsx`, dentro del formulario *Nueva inspección*.
+
+## Resumen
+
+| Capacidad | Para qué se usa | Permiso | Cuándo se pide | Datos mínimos | Alternativa |
 |---|---|---|---|---|---|
-| Cámara (`src/lib/device/camera.ts`) | Capturar una foto de evidencia de una inspección | Cámara, solo video y sin micrófono | Al invocar `abrirCamara`, previsto desde una acción explícita del usuario | El módulo abre un flujo de cámara; no captura ni almacena la imagen por sí solo. `cerrarCamara` detiene todas las pistas cuando se invoca | `<input type="file" accept="image/*" capture="environment">` o galería |
-| Geolocalización (`src/lib/device/geolocation.ts`) | Sugerir en qué laboratorio se hace la inspección | Ubicación | Al invocar `obtenerUbicacion`, previsto desde una acción explícita del usuario | Una lectura, sin seguimiento continuo; baja precisión y coordenadas redondeadas a 3 decimales (aproximadamente 110 m) | Escribir el laboratorio manualmente |
-| Notificaciones (`src/lib/notifications/client.ts`) | Mostrar un recordatorio local de inspección pendiente | Notificaciones | Al invocar `pedirPermiso`, previsto desde una acción explícita del usuario | El título y el cuerpo los proporciona quien llama al módulo; este no los filtra ni garantiza que sean genéricos. Sin push ni servidor | Aviso dentro de la app |
+| Cámara | Foto de evidencia de la inspección | Cámara, solo video, sin micrófono | Al pulsar **Tomar foto** | Un fotograma, reducido a 800 px y comprimido como JPEG. La cámara se apaga al capturar o cancelar | **Adjuntar foto**: entrada de archivo con `capture="environment"` (cámara nativa o galería) |
+| Ubicación | Registrar dónde se hizo la inspección | Ubicación | Al pulsar **Usar mi ubicación** | Una sola lectura, sin seguimiento, precisión baja, coordenadas redondeadas a 3 decimales (~110 m) | Continuar sin ubicación o escribir el laboratorio |
+| Notificaciones | Recordatorio local de que quedó una inspección sin enviar | Notificaciones | Al pulsar **Activar recordatorios** | Texto genérico; notificación local por el service worker, sin push ni servidor | Aviso dentro de la app |
+
+## Integración con la app
+
+- El panel *Evidencia y avisos (opcional)* aparece en el formulario. **Nada se solicita al cargar la página.**
+- La foto y la ubicación se incluyen en el registro (`photo` y `geo`), se guardan en la cola local, se ven en el listado y viajan al servidor al sincronizar.
+- El botón **Activar recordatorios** solo se muestra mientras el permiso de notificaciones no esté concedido. Si se guarda una inspección **sin conexión** y hay permiso, se muestra una notificación local; si no hay permiso o soporte, el aviso se queda dentro de la app.
+- Si ya no hay espacio en el almacenamiento local para guardar (por ejemplo, por una foto grande), el formulario lo avisa y sugiere quitar la foto.
 
 ## Estados posibles
 
-El tipo compartido `CapabilityResult` define los estados `ok`, `unsupported`, `denied` y `error`, con un mensaje para los resultados distintos de `ok`. Las funciones de estos módulos devuelven resultados tipados en vez de propagar los errores que manejan. Esto no confirma que una interfaz existente invoque las funciones o presente esos mensajes.
+Todas las funciones devuelven un resultado tipado (`CapabilityResult`) con cuatro estados, en vez de lanzar errores hacia la interfaz:
 
-## Decisiones
+| Estado | Significado | Qué ve la persona |
+|---|---|---|
+| `ok` | La capacidad funcionó | El resultado (foto, coordenadas, permiso activado) |
+| `unsupported` | El dispositivo o navegador no la ofrece | Mensaje y alternativa |
+| `denied` | La persona negó el permiso | Mensaje y alternativa; el formulario sigue usable |
+| `error` | Falló por otra causa | Mensaje para reintentar o continuar sin ella |
 
-- No se solicitan permisos al cargar la página. Las funciones están documentadas para invocarse por una acción explícita del usuario; los módulos por sí solos no implementan controles de interfaz.
-- Si el permiso de notificaciones ya está denegado, `pedirPermiso` indica que puede activarse desde la configuración del sitio y no vuelve a solicitarlo.
-- Las notificaciones son locales y utilizan el service worker para mostrarse. No implementan notificaciones push ni requieren un servidor en este módulo.
-- La versión documentada utiliza datos sintéticos. El código inspeccionado no demuestra que fotos o coordenadas se transmitan o almacenen de una manera determinada.
+## Cámara y foto
 
-## Pruebas
+- Se pide `getUserMedia` con video de la cámara trasera y **sin audio**.
+- Al capturar se dibuja un fotograma en un canvas reducido a 800 px de lado mayor y se exporta como JPEG, bajando la calidad (0.7, 0.5, 0.35, 0.2) hasta que cabe en el límite de 600 000 caracteres que acepta la API. Si ni así cabe, se avisa.
+- Si el permiso se niega o no hay cámara, se muestra un mensaje y queda disponible **Adjuntar foto**.
 
-Existe `tests/capabilities.spec.ts`. Con objetos simulados comprueba resultados de geolocalización, incluida la ubicación ausente, permiso denegado, error y coordenadas redondeadas; que la cámara no solicite micrófono, que se detengan las pistas al llamar a `cerrarCamara` y que exista el fallback de entrada de archivo; y que las notificaciones no se muestren sin permiso, contemplando permiso denegado y falta de soporte.
+## Ubicación
 
-Los objetos simulados no sustituyen las pruebas en dispositivos físicos ni en navegadores reales con los diálogos de permisos. Esta prueba tampoco comprueba todos los estados de error para cada capacidad ni una interacción real de interfaz.
+- Una sola lectura (`getCurrentPosition`), sin `watchPosition`, con precisión baja, límite de 8 s y reutilización de una lectura de hasta 60 s.
+- Las coordenadas se redondean a 3 decimales por minimización de datos.
+
+## Notificaciones
+
+- Si el permiso ya está denegado, no se vuelve a pedir; se indica que puede activarse en la configuración del sitio.
+- Son locales y se muestran con `showNotification` del service worker. No hay push.
+- Leer el permiso (`leerPermiso`) nunca abre el diálogo del navegador.
+
+## Cómo se verifica
+
+- Unitarias: `capabilities.spec.ts` (estados de cada capacidad con objetos simulados, sin micrófono, cierre de pistas, redondeo, no preguntar si ya está bloqueado), `image.spec.ts` (redimensionado y compresión) y `labels.spec.ts`.
+- Integración: `device-integration.spec.ts` (el panel está en el formulario y nada se pide al cargar).
+- E2E: `capacidades.spec.ts` (cámara y ubicación simuladas por el navegador de pruebas: la foto y la ubicación llegan al servidor) y `flujo-critico.spec.ts` (sin cámara hay alternativa).
 
 ## Limitaciones
 
-- No se ha confirmado el funcionamiento en un dispositivo físico ni con los diálogos reales de permisos.
-- La compatibilidad de notificaciones puede variar según el navegador y el sistema operativo.
-- Cámara, geolocalización y service worker dependen de las condiciones de seguridad que exija el navegador, normalmente HTTPS o `localhost`.
-- Los módulos de dispositivo existen, pero la revisión de `src/app/` no encontró controles de interfaz que los invoquen. No se afirma que haya una integración completa.
-- El módulo de cámara no captura ni almacena una imagen automáticamente: abre un flujo y expone una función para detener sus pistas.
-- El módulo de notificaciones muestra el título y el cuerpo recibidos del llamador; no garantiza que su contenido sea genérico ni que esté libre de datos personales.
+- Cámara real y diálogos de permisos reales no se automatizan; se simulan o se prueban a mano.
+- Solo se probó en Chromium. La compatibilidad de notificaciones varía según navegador y sistema operativo.
+- Cámara, ubicación y service worker requieren HTTPS o `localhost`.
+- Las fotos ocupan mucho de `localStorage` (capacidad limitada); los registros sincronizados no se eliminan de la cola.
+- Las notificaciones no son push: solo avisan mientras el navegador o la app pueden mostrarlas.
