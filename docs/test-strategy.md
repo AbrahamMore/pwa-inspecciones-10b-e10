@@ -14,9 +14,9 @@ Cada nivel de la pirámide protege una parte distinta de ese flujo.
 
 | Nivel | Carpeta | Qué prueba | Velocidad | Cómo corre |
 |---|---|---|---|---|
-| Unitarias | `tests/unit/` (12 archivos) | Lógica pura y aislada: cola de sincronización, reintentos, política de conflictos, validación, idempotencia del almacén, sincronizador, compresión de imagen, módulos de cámara / ubicación / notificaciones (con objetos simulados), registro del service worker, contratos del manifest y del `sw.js`, renderizado de rutas | Milisegundos | `npm run test:unit` |
+| Unitarias | `tests/unit/` (15 archivos) | Lógica pura y aislada: cola de sincronización, reintentos, política de conflictos, validación, idempotencia del almacén, sincronizador, compresión de imagen, módulos de cámara / ubicación / notificaciones (con objetos simulados), registro del service worker, contratos del manifest y del `sw.js`, renderizado de rutas, reintentos agotados y lectura de un almacenamiento local dañado, textos de estado | Milisegundos | `npm run test:unit` |
 | Integración | `tests/integration/` (5 archivos) | Varias piezas juntas **sin navegador**: cola → API real (handler `POST`/`GET`), conflictos a través de la API, envíos simultáneos del mismo registro, componentes de navegación y panel de dispositivo renderizados, precache del service worker contra los archivos reales | Segundos | `npm run test:integration` |
-| E2E | `tests/e2e/` (5 pruebas, Playwright) | La app **construida en modo producción** en un Chromium real: recorrido solo con clics, apertura sin conexión, flujo crítico offline → sincronización, validación del formulario y fallback sin cámara | ~25 s | `npm run test:e2e` |
+| E2E | `tests/e2e/` (7 pruebas, Playwright) | La app **construida en modo producción** en un Chromium real: recorrido solo con clics, apertura sin conexión, flujo crítico offline → sincronización, validación del formulario y fallback sin cámara, captura de foto y ubicación simuladas, y recuperación ante almacenamiento local dañado | ~25 s | `npm run test:e2e` |
 
 La proporción es intencional: muchas pruebas baratas y precisas abajo, pocas y costosas arriba. Un fallo unitario señala la función exacta; un fallo E2E solo dice que *algo* del flujo se rompió, por eso se reserva para lo que ninguna otra capa puede comprobar (service worker real, `localStorage` real, eventos online/offline, navegación).
 
@@ -49,13 +49,14 @@ La proporción es intencional: muchas pruebas baratas y precisas abajo, pocas y 
 | La **actualización segura** del service worker solo escribía en la consola; el usuario nunca podía activarla | Revisión del criterio de actualización segura al documentar | Aviso "Actualizar / Después" en la interfaz; `sw-update.spec.ts` |
 | La política de conflictos existía pero **el servidor no la usaba** (tenía su propia comparación de fechas) | Revisión de integración | El almacén usa `resolveConflict`; `conflict-integration.spec.ts` |
 | Un selector de la prueba E2E (`getByRole("alert")`) era ambiguo porque Next.js añade su propio `role="alert"` | Primera ejecución E2E (falló) | Filtrar por texto |
+| El almacenamiento local dañado (JSON inválido) hacía que readQueue lanzara una excepción y la app no cargara bien | storage-schema.spec.ts (falló antes de la corrección) y datos-danados.spec.ts | readQueue captura el error y devuelve una cola vacía; la app se recupera al volver a guardar |
 
 **Comprobación de que las pruebas detectan fallos (mutación manual):** se rompió a propósito la idempotencia del almacén (guardar con un identificador distinto en cada envío). Fallaron `inspections-store.spec.ts`, `conflict-integration.spec.ts` y `sync-integration.spec.ts`; al revertir, volvieron a pasar. Se comprobó también que `run-tests.mjs` termina con error si un archivo falla.
 
 ## 5. Límites conocidos (lo que estas pruebas NO prueban)
 
 - **Solo Chromium.** No se probó Firefox ni Safari, que tratan distinto los service workers y las notificaciones.
-- **Sin dispositivo físico ni diálogos reales de permisos.** La cámara en E2E se limita al caso "sin cámara"; la captura real se probó manualmente.
+- **Sin dispositivo físico ni diálogos reales de permisos.** La cámara y la ubicación en E2E usan dispositivos simulados por el navegador de pruebas; la ejecución de una prueba manual con cámara real en un dispositivo físico no está acreditada en esta evidencia.
 - **Sin medición de cobertura.** No hay herramienta de cobertura instalada; la cobertura se razona por flujo (sección 2), no se mide en porcentaje.
 - **Algunas pruebas leen el código fuente como texto** (por ejemplo, comprobar que `install` no llama `skipWaiting`). Son contratos baratos y útiles, pero frágiles ante refactors y no sustituyen una prueba de comportamiento.
 - **El servidor es en memoria** (se reinicia con el servidor y no se comparte entre instancias). Las pruebas de idempotencia validan la lógica, no la persistencia real de una base de datos.
