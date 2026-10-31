@@ -201,6 +201,19 @@ Mi contribución consistió en actualizar la documentación técnica del proyect
 - **Limitaciones, dificultades o riesgos identificados:** No se ejecutó `npm run verify` porque el script invoca internamente comandos de Git y se decidió no utilizarlos. Algunas evidencias visuales no demuestran por sí solas que se haya realizado una recarga completa sin conexión, que el registro específico del paso 5 se haya sincronizado o que no existan duplicados en todos los escenarios. Los enlaces del PR y de GitHub Actions quedan pendientes de verificación.
 - **Uso de IA:** Se utilizó ChatGPT y asistencia de Codex para apoyar la actualización de la documentación, la revisión de los archivos y la organización de las evidencias. La validación se apoyó en la ejecución de pruebas automatizadas y en la revisión de las capturas y resultados disponibles.
 
+### Semana 9 — Seguridad y privacidad
+
+Mi contribución individual fue elaborar `docs/threat-model.md` y `docs/privacy-data-inventory.md`. Documenté las amenazas y los controles localizados en el código, los límites del modelo, el tratamiento de los datos, los permisos del dispositivo, el almacenamiento local y los riesgos de privacidad.
+
+- **Commit SHA de la implementación documental:** `15edde946cb153c725a7af7e9a29a60939a6182e`
+- **Commit:** `docs: agregar documentación de seguridad y privacidad de la semana 9`
+- **Decisión técnica que puedo explicar:** Separé el modelo de amenazas del inventario de privacidad para describir por un lado los activos, riesgos y controles y, por otro, los datos tratados, su almacenamiento y acceso. En ambos documentos distinguí los controles implementados de las mitigaciones parciales, los riesgos pendientes y las limitaciones del entorno académico.
+- **Entorno y comandos ejecutados:** Node.js `v20.20.2`; `npm ci` y `npm run verify`.
+- **Resultado real reportado:** `starter.spec.mjs: PASS` y `security.spec.ts: PASS`; 15 archivos unitarios y 5 archivos de integración aprobados (20/20 entre esas suites); compilación de Next.js, lint y comprobación de tipos durante el build: PASS; `Verificación técnica: pass`. Se generó `reports/verification.json`. La revisión académica permanece pendiente.
+- **Qué comprueba la verificación y qué no:** La salida reportada confirma que pasaron las pruebas automatizadas incluidas en esas suites y que el proyecto compiló y pasó las comprobaciones ejecutadas por el build. No demuestra que todos los riesgos estén mitigados ni valida por sí sola la exactitud o suficiencia académica de los documentos; algunas pruebas usan simulaciones y solo cubren los casos que contienen.
+- **Limitaciones, dificultades o riesgos identificados:** La identidad se basa en cabeceras simuladas y no es autenticación real; el servidor almacena registros en memoria, no en persistencia durable; los registros sincronizados pueden permanecer en la cola local; el botón de borrado limpia esa cola, pero no la caché ni el almacén del servidor; no hay una política formal de retención. Algunas pruebas usan mocks o simulaciones y no cubren todos los navegadores. `npm ci` reportó 3 vulnerabilidades de dependencias (2 altas y 1 crítica); no ejecuté `npm audit fix` ni `npm audit fix --force`. La revisión académica sigue pendiente.
+- **Uso de IA:** Utilicé un asistente de IA integrado en VS Code como apoyo para revisar el código y redactar esta evidencia. La información sobre los documentos, las pruebas y sus límites se contrastó con los archivos del proyecto y con los resultados de verificación proporcionados.
+
 
 ## Integrante: Diana Laura Olmos Antonio
 ### Semana 1
