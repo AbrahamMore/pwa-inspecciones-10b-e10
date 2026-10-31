@@ -32,7 +32,7 @@ const handlers: Record<string, Handler> = {};
 const stores = new Map<string, Map<string, unknown>>();
 let online = true;
 const key = (r: unknown) => (typeof r === "string" ? r : (r as { url: string }).url);
-const fakeResponse = (body: string, ok = true) => ({ ok, body, clone() { return fakeResponse(body, ok); } });
+const fakeResponse = (body: string, ok = true) => ({ ok, body, clone() { return fakeResponse(body, ok); }, text: async () => body });
 const origin = "http://localhost:3000";
 
 const caches = {
@@ -40,7 +40,15 @@ const caches = {
     if (!stores.has(name)) stores.set(name, new Map());
     const s = stores.get(name)!;
     return {
-      addAll: async (urls: string[]) => { for (const u of urls) s.set(origin + u, fakeResponse("precache:" + u)); },
+      addAll: async (urls: string[]) => {
+        for (const u of urls) {
+          // La página de "nueva inspección" referencia un archivo de build, como hace el HTML real de Next.
+          const html = u === "/inspecciones/nueva" ? '<script src="/_next/static/chunks/app/inspecciones/nueva/page-abc123.js" async></script>' : "";
+          s.set(origin + u, fakeResponse("precache:" + u + html));
+        }
+      },
+      add: async (u: string) => { s.set(key(u).startsWith("http") ? key(u) : origin + key(u), fakeResponse("build:" + u)); },
+      match: async (r: unknown) => s.get(key(r).startsWith("http") ? key(r) : origin + key(r)),
       put: async (r: unknown, res: unknown) => { s.set(key(r), res); },
     };
   },
@@ -76,6 +84,10 @@ await dispatch("install");
 const cacheName = [...stores.keys()][0];
 assert.ok(stores.get(cacheName)!.has(origin + "/inspecciones"), "el listado debe quedar precacheado al instalar");
 assert.ok(stores.get(cacheName)!.has(origin + "/icons/icon-192.png"), "los íconos deben quedar precacheados");
+assert.ok(
+  stores.get(cacheName)!.has(origin + "/_next/static/chunks/app/inspecciones/nueva/page-abc123.js"),
+  "los archivos de build que referencian las páginas precacheadas también deben guardarse (si no, sin red la página no se hidrata)",
+);
 
 // Con red: responde de la red y guarda la copia de la página visitada.
 const r1 = (await dispatch("fetch", nav("/inspecciones/1"))) as { body: string };

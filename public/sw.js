@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const CACHE_NAME = `inspecciones-lab-${CACHE_VERSION}`;
 const OFFLINE_URL = "/offline.html";
 
@@ -13,10 +13,33 @@ const PRECACHE_ASSETS = [
   OFFLINE_URL,
 ];
 
+// Las páginas se generan en el servidor en cada petición (la CSP lleva un nonce distinto en cada
+// respuesta, ver src/middleware.ts), así que el navegador ya no precarga por su cuenta los JS/CSS de
+// las rutas que el usuario aún no ha visitado. Sin ellos, una página precacheada abriría sin red pero
+// no se hidrataría (pantalla en blanco). Por eso, tras precachear las páginas se leen sus etiquetas y
+// se guardan también los archivos de build que necesitan.
+const PAGES_WITH_BUILD_ASSETS = ["/", "/inspecciones", "/inspecciones/nueva"];
+const BUILD_ASSET_RE = /\/_next\/static\/[A-Za-z0-9_\-./%\[\]]+\.(?:js|css)/g;
+
+async function precache() {
+  const cache = await caches.open(CACHE_NAME);
+  await cache.addAll(PRECACHE_ASSETS);
+  try {
+    const assets = new Set();
+    for (const page of PAGES_WITH_BUILD_ASSETS) {
+      const response = await cache.match(page);
+      if (!response) continue;
+      const html = await response.text();
+      for (const found of html.match(BUILD_ASSET_RE) || []) assets.add(found);
+    }
+    await Promise.all([...assets].map((url) => cache.add(url).catch(() => {})));
+  } catch (_) {
+    // Mejor esfuerzo: si algo falla aquí, el precaché de páginas e íconos ya quedó guardado.
+  }
+}
+
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
-  );
+  event.waitUntil(precache());
   // No se invoca el método de activación inmediata aquí a propósito: la nueva versión se
   // instala pero espera, para no interrumpir una sesión en curso
   // (actualización segura). La activación la dispara el usuario.

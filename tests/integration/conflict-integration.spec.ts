@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolveConflict } from "../../src/lib/sync/conflict-policy";
 import { recibir, listar, type Recibida } from "../../src/lib/server/inspections-store";
 import { POST } from "../../src/app/api/inspecciones/route";
+import { cabecerasActorDemo } from "../../src/lib/security/actor";
 
 const payload = { location: "Laboratorio de Cómputo", date: "2026-10-24", inspector: "Ana", summary: "", findings: "Original" };
 const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
@@ -13,7 +14,7 @@ const v = (updatedAt: string, findings = "Original") => ({
   updatedAt,
 });
 const post = (body: unknown) =>
-  POST(new Request("http://localhost/api/inspecciones", { method: "POST", body: JSON.stringify(body) }));
+  POST(new Request("http://localhost/api/inspecciones", { method: "POST", headers: cabecerasActorDemo(), body: JSON.stringify(body) }));
 
 // 1) La política decide por updatedAt y solo necesita clientId + updatedAt.
 assert.equal(resolveConflict({ clientId: id, updatedAt: "2026-10-24T12:00:00Z" }, { clientId: id, updatedAt: "2026-10-24T10:00:00Z" }), "local");

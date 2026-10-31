@@ -18,6 +18,8 @@ jobs:
           cache: npm
       - name: Instalación reproducible
         run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Pruebas de seguridad (negativas)
+        run: npm run test:security
       - name: Pruebas unitarias
         run: npm run test:unit
       - name: Pruebas de integración
