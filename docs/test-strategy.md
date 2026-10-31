@@ -16,7 +16,8 @@ Cada nivel de la pirámide protege una parte distinta de ese flujo.
 |---|---|---|---|---|
 | Unitarias | `tests/unit/` (15 archivos) | Lógica pura y aislada: cola de sincronización, reintentos, política de conflictos, validación, idempotencia del almacén, sincronizador, compresión de imagen, módulos de cámara / ubicación / notificaciones (con objetos simulados), registro del service worker, contratos del manifest y del `sw.js`, renderizado de rutas, reintentos agotados y lectura de un almacenamiento local dañado, textos de estado | Milisegundos | `npm run test:unit` |
 | Integración | `tests/integration/` (5 archivos) | Varias piezas juntas **sin navegador**: cola → API real (handler `POST`/`GET`), conflictos a través de la API, envíos simultáneos del mismo registro, componentes de navegación y panel de dispositivo renderizados, precache del service worker contra los archivos reales | Segundos | `npm run test:integration` |
-| E2E | `tests/e2e/` (7 pruebas, Playwright) | La app **construida en modo producción** en un Chromium real: recorrido solo con clics, apertura sin conexión, flujo crítico offline → sincronización, validación del formulario y fallback sin cámara, captura de foto y ubicación simuladas, y recuperación ante almacenamiento local dañado | ~1 min. | `npm run test:e2e` |
+| Seguridad (negativas) | `tests/security.spec.ts` (1 archivo) | Que lo prohibido NO ocurra: sin identidad no se puede nada, un inspector no lee ni pisa registros ajenos, entradas inválidas rechazadas, CSP sin `unsafe-inline`, sin patrones de XSS, `robots.txt` y borrado local | Segundos | `npm run test:security` |
+| E2E | `tests/e2e/` (13 pruebas, Playwright) | La app **construida en modo producción** en un Chromium real: recorrido solo con clics, apertura sin conexión, flujo crítico offline → sincronización, validación del formulario y fallback sin cámara, captura de foto y ubicación simuladas, recuperación ante almacenamiento local dañado, CSP y cabeceras de seguridad en el navegador real (incluido un script en línea inyectado que se bloquea), API sin identidad y sin registros ajenos, y borrado de datos locales | ~1 min. | `npm run test:e2e` |
 
 La proporción es intencional: muchas pruebas baratas y precisas abajo, pocas y costosas arriba. Un fallo unitario señala la función exacta; un fallo E2E solo dice que *algo* del flujo se rompió, por eso se reserva para lo que ninguna otra capa puede comprobar (service worker real, `localStorage` real, eventos online/offline, navegación).
 
@@ -50,6 +51,9 @@ La proporción es intencional: muchas pruebas baratas y precisas abajo, pocas y 
 | La política de conflictos existía pero **el servidor no la usaba** (tenía su propia comparación de fechas) | Revisión de integración | El almacén usa `resolveConflict`; `conflict-integration.spec.ts` |
 | Un selector de la prueba E2E (`getByRole("alert")`) era ambiguo porque Next.js añade su propio `role="alert"` | Primera ejecución E2E (falló) | Filtrar por texto |
 | El almacenamiento local dañado (JSON inválido) hacía que readQueue lanzara una excepción y la app no cargara bien | storage-schema.spec.ts (falló antes de la corrección) y datos-danados.spec.ts | readQueue captura el error y devuelve una cola vacía; la app se recupera al volver a guardar |
+| **Semana 9:** `GET /api/inspecciones` devolvía todos los registros (con foto, ubicación y nombre) a cualquiera; el servidor guardaba campos extra tal cual y aceptaba fotos SVG | Auditoría del código para el modelo de amenazas | Autorización por rol, lista blanca de campos y validación estricta; `tests/security.spec.ts` |
+| **Semana 9:** al hacer dinámicas las páginas (necesario para el nonce de la CSP), `/inspecciones/nueva` dejó de abrir sin conexión: pantalla en blanco por `ChunkLoadError` | La E2E del flujo crítico (falló 4 de 4 veces) | El service worker guarda también los JS/CSS de las páginas precacheadas (caché v4); `pwa-integration.spec.ts` |
+| **Semana 9:** con `'strict-dynamic'` en la CSP un script en línea creado con `createElement` sí se ejecutaba | Una E2E que inyecta un script en la página y esperaba que se bloqueara | Se quitó `'strict-dynamic'`; la política queda `'self'` más el nonce |
 
 **Comprobación de que las pruebas detectan fallos (mutación manual):** se rompió a propósito la idempotencia del almacén (guardar con un identificador distinto en cada envío). Fallaron `inspections-store.spec.ts`, `conflict-integration.spec.ts` y `sync-integration.spec.ts`; al revertir, volvieron a pasar. Se comprobó también que `run-tests.mjs` termina con error si un archivo falla.
 
@@ -67,7 +71,7 @@ La proporción es intencional: muchas pruebas baratas y precisas abajo, pocas y 
 
 El archivo `.github/workflows/academic-evaluation.yml` se ejecuta en cada `push` y `pull_request` (y manualmente con `workflow_dispatch`) y tiene dos trabajos:
 
-1. **`verify`:** `npm ci` → `npm run test:unit` → `npm run test:integration` → `npm run verify` (estructura, pruebas y build). Sube `reports/verification.json` como artefacto.
+1. **`verify`:** `npm ci` → `npm run test:security` → `npm run test:unit` → `npm run test:integration` → `npm run verify` (estructura, pruebas y build). Sube `reports/verification.json` como artefacto.
 2. **`e2e`** (solo si `verify` pasó): `npm ci` → instala Chromium → `npm run test:e2e`. Sube el reporte HTML y las trazas de Playwright como artefacto, también cuando falla, para poder inspeccionar el fallo.
 
 Se usa Node 20.19.6 con caché de npm y permisos mínimos (`contents: read`). Las pruebas no necesitan secretos.

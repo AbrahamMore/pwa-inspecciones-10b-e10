@@ -1,0 +1,5 @@
+# robots.txt orienta a rastreadores que cooperan. NO es un control de acceso:
+# la protección real de /api/ está en el servidor (autorización por rol).
+# Aquí no se listan rutas internas ni secretos.
+User-agent: *
+Disallow: /api/

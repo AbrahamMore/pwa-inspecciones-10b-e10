@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { cabecerasActorDemo } from "../../src/lib/security/actor";
 
 /**
  * E2E del flujo crítico de la PWA: capturar una inspección SIN conexión, no perderla,
@@ -28,7 +29,7 @@ async function volverOnline(page: Page) {
 const nav = (page: Page, nombre: string) => page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: nombre, exact: true });
 
 async function registros(page: Page, laboratorio: string) {
-  const r = await page.request.get("/api/inspecciones");
+  const r = await page.request.get("/api/inspecciones", { headers: cabecerasActorDemo() });
   const { items } = (await r.json()) as { items: { payload: { location: string } }[] };
   return items.filter((i) => i.payload.location === laboratorio);
 }

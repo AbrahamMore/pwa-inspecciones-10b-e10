@@ -5,6 +5,7 @@ import { clearQueue, readQueue } from "../../src/lib/storage/schema";
 import { enqueueInspection, syncQueue } from "../../src/lib/sync/queue";
 import { listar } from "../../src/lib/server/inspections-store";
 import { GET, POST } from "../../src/app/api/inspecciones/route";
+import { cabecerasActorDemo } from "../../src/lib/security/actor";
 
 const payload = {
   location: "Laboratorio de Redes",
@@ -20,14 +21,14 @@ const item = () => ({
   updatedAt: "2026-10-19T10:00:00.000Z",
 });
 const post = (body: unknown) =>
-  POST(new Request("http://localhost/api/inspecciones", { method: "POST", body: typeof body === "string" ? body : JSON.stringify(body) }));
+  POST(new Request("http://localhost/api/inspecciones", { method: "POST", headers: cabecerasActorDemo(), body: typeof body === "string" ? body : JSON.stringify(body) }));
 
 // --- API real (route handler) ---
 assert.equal((await post("{no es json")).status, 400);
 assert.equal((await post({ ...item(), payload: { ...payload, location: "" } })).status, 422);
 assert.equal((await post(item())).status, 201);
 assert.equal((await post(item())).status, 200, "el reenvío responde 200 y no crea otro registro");
-const lista = (await (await GET()).json()) as { items: unknown[] };
+const lista = (await (await GET(new Request("http://localhost/api/inspecciones", { headers: cabecerasActorDemo() }))).json()) as { items: unknown[] };
 assert.equal(lista.items.length, 1);
 assert.equal(listar().length, 1);
 

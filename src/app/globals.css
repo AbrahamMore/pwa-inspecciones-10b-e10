@@ -117,3 +117,7 @@ dd { font-size: .82rem; font-weight: 700; margin: 0; text-align: right; }
 .update-banner { align-items: center; background: #172b62; border-radius: 12px; bottom: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.25); color: white; display: flex; flex-wrap: wrap; gap: 10px 14px; left: 16px; max-width: calc(100% - 32px); padding: 12px 16px; position: fixed; z-index: 20; }
 .update-banner button { background: white; border: 0; border-radius: 8px; color: #172b62; cursor: pointer; font: inherit; font-weight: 700; padding: 7px 14px; }
 .update-banner .update-later { background: transparent; border: 1px solid rgba(255,255,255,.5); color: white; }
+
+/* Botón de privacidad (borrar datos locales) */
+.btn-borrar { background: var(--surface); border: 1px solid var(--warning); border-radius: 10px; color: var(--warning); cursor: pointer; font: inherit; font-weight: 600; padding: 10px 16px; }
+.btn-borrar:hover { background: var(--warning-soft); }

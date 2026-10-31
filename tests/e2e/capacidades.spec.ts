@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { cabecerasActorDemo } from "../../src/lib/security/actor";
 
 /**
  * E2E de capacidades del dispositivo con cámara y ubicación SIMULADAS por el navegador de pruebas.
@@ -36,12 +37,17 @@ test("foto y ubicación se capturan al pulsar los botones y llegan al servidor",
   await page.getByRole("button", { name: "Guardar inspección" }).click();
   await expect(page.getByText("Sincronizada")).toBeVisible({ timeout: 15_000 });
 
-  const r = await page.request.get("/api/inspecciones");
-  const { items } = (await r.json()) as { items: { payload: { location: string; photo?: string; geo?: { lat: number; lon: number } } }[] };
+  const headers = cabecerasActorDemo();
+  const r = await page.request.get("/api/inspecciones", { headers });
+  const { items } = (await r.json()) as { items: { clientId: string; tieneFoto: boolean; payload: { location: string; photo?: string; geo?: { lat: number; lon: number } } }[] };
   const mio = items.filter((i) => i.payload.location === lab);
   expect(mio).toHaveLength(1);
-  expect(mio[0].payload.photo).toMatch(/^data:image\/jpeg;base64,/);
+  // El listado no incluye la foto (minimización); solo el detalle, para quien puede ver el registro.
+  expect(mio[0].tieneFoto).toBe(true);
+  expect(mio[0].payload.photo).toBeUndefined();
   expect(mio[0].payload.geo).toMatchObject({ lat: 18.462, lon: -97.393 });
+  const detalle = (await (await page.request.get(`/api/inspecciones/${mio[0].clientId}`, { headers })).json()) as { item: { payload: { photo?: string } } };
+  expect(detalle.item.payload.photo).toMatch(/^data:image\/jpeg;base64,/);
 
   // Quitar la foto y la ubicación antes de guardar es posible.
   await page.getByRole("button", { name: "Tomar foto" }).click();

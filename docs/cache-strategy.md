@@ -4,7 +4,7 @@ Archivo: `public/sw.js`. Registro: `src/lib/pwa/register-service-worker.ts` y `s
 
 ## Versionado
 
-El caché usa un nombre versionado: `inspecciones-lab-v3` (`CACHE_VERSION = "v3"`). Cuando se publica una versión nueva del service worker se incrementa la versión. Durante `activate`, el service worker elimina todos los cachés cuyo nombre sea distinto del actual, para que las versiones viejas no ocupen espacio ni sirvan contenido obsoleto.
+El caché usa un nombre versionado: `inspecciones-lab-v4` (`CACHE_VERSION = "v4"`). Cuando se publica una versión nueva del service worker se incrementa la versión. Durante `activate`, el service worker elimina todos los cachés cuyo nombre sea distinto del actual, para que las versiones viejas no ocupen espacio ni sirvan contenido obsoleto.
 
 ## Qué se precachea al instalar
 
@@ -16,6 +16,8 @@ Lo mínimo para que la app abra y se pueda usar sin conexión:
 - `/manifest.webmanifest` — necesario para que la app siga siendo instalable.
 - `/icons/icon-192.png` y `/icons/icon-512.png` — íconos de la app.
 - `/offline.html` — página de respaldo cuando no hay red.
+
+Además, tras precachear esas páginas, el service worker **lee su HTML y guarda también los archivos de build** (`/_next/static/**/*.js` y `*.css`) que referencian. Desde la Semana 9 las páginas se generan en el servidor en cada petición para poder llevar el nonce de la CSP (ver `docs/threat-model.md`); con eso el navegador ya no precarga por su cuenta los JS de las rutas aún no visitadas, y una página precacheada abría sin red pero sin hidratarse (pantalla en blanco, `ChunkLoadError`). Esto se descubrió con la prueba E2E del flujo crítico y se corrigió en `precache()`; lo cubre `tests/integration/pwa-integration.spec.ts`. Es de mejor esfuerzo: si una descarga falla, el resto del precaché ya quedó guardado.
 
 ## Estrategia según tipo de petición
 

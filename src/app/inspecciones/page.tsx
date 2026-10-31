@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LoadingState } from "../../components/loading-state";
 import { useSync } from "../../components/sync-provider";
+import { BorrarDatosLocales } from "../../components/borrar-datos-locales";
 import { ETIQUETAS_SYNC } from "../../lib/sync/labels";
 import {
   inspections as syntheticInspections,
@@ -124,6 +125,8 @@ export default function InspeccionesPage() {
           </ul>
         )}
       </section>
+
+      <BorrarDatosLocales />
     </main>
   );
 }

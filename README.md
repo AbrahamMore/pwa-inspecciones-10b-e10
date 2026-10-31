@@ -117,3 +117,44 @@ El commit SHA, el enlace a la ejecución de Actions y la sección individual de 
 ### Límites
 
 Solo se prueba en Chromium; no se mide la cobertura en porcentaje; la cámara real y los diálogos de permisos no se automatizan (se simulan); el servidor de sincronización guarda en memoria. Detalle en `docs/test-strategy.md`, sección 5.
+
+## Seguridad y privacidad (Semana 9)
+
+Modelo de amenazas: [`docs/threat-model.md`](docs/threat-model.md). Inventario de datos: [`docs/privacy-data-inventory.md`](docs/privacy-data-inventory.md). Todo usa datos sintéticos; no hay secretos, tokens ni datos personales en el repositorio.
+
+### Qué se implementó
+
+| Control | Dónde | Amenaza que reduce |
+|---|---|---|
+| Autorización por rol en la API (mínimo privilegio, denegar por defecto) | `src/lib/security/authz.ts`, `src/lib/security/actor.ts`, `src/app/api/inspecciones/**` | Un inspector lee o pisa registros de otro (IDOR) |
+| Validación y lista blanca de campos en el servidor | `src/lib/security/validation.ts` | Datos fuera de rango, campos extra, foto SVG, `clientId` raro, cuerpos enormes |
+| Minimización: el listado no entrega foto ni propietario | `src/lib/server/inspections-access.ts` | Exposición innecesaria de datos |
+| CSP con nonce y cabeceras de seguridad | `src/middleware.ts`, `src/lib/security/headers.ts` | XSS, clickjacking, sniffing de tipos |
+| Borrar datos de este dispositivo | `src/lib/security/local-data.ts`, `src/components/borrar-datos-locales.tsx` | Datos privados que quedan en un equipo compartido o perdido |
+| `robots.txt` | `public/robots.txt` | Solo orienta a rastreadores; **no** es control de acceso |
+
+**La identidad es simulada.** El proyecto no tiene autenticación real (quedó fuera de alcance desde la Semana 1). El "actor" se lee de cabeceras de demostración (`x-demo-actor`, `x-demo-rol`, `x-demo-alcance`) que el cliente envía y que cualquiera puede falsificar. Sirven para ejercitar y probar la política de autorización, **no** para proteger datos reales. En un sistema real, `obtenerActor()` leería una sesión firmada en el servidor y el resto no cambiaría.
+
+### Setup, ejecución y verificación
+
+```bash
+node --version                      # Node 20.19 o posterior
+npm ci
+npm run verify                      # estructura + starter + seguridad + unitarias + integración + build (equivalente: make verify)
+npm run test:security               # solo las pruebas negativas de seguridad (tests/security.spec.ts)
+npx playwright install chromium     # solo la primera vez
+npm run test:e2e                    # incluye tests/e2e/seguridad.spec.ts (CSP real en el navegador)
+```
+
+Las pruebas de seguridad también corren en GitHub Actions (trabajo `verify`, paso "Pruebas de seguridad").
+
+### Evidencia
+
+El commit SHA, la ejecución de Actions y la sección individual de cada integrante están en `evidence/individual.md`.
+
+### Límites y compromisos
+
+- La CSP exige páginas dinámicas (un nonce distinto por respuesta): se pierde el prerenderizado estático. Para no romper el modo sin conexión, el service worker precachea también los archivos de build de cada página (`docs/cache-strategy.md`).
+- `style-src` no permite estilos en línea en producción; el estilo de `public/offline.html` es en línea y por eso esa página queda fuera del middleware (no ejecuta scripts).
+- Algunas pruebas de seguridad leen el código fuente como texto (por ejemplo, que no haya `dangerouslySetInnerHTML`): son baratas pero frágiles ante refactors.
+- La autenticación real, el límite de peticiones (rate limit) y la persistencia real del servidor siguen fuera de alcance.
