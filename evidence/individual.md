@@ -298,10 +298,10 @@ Mi contribución concreta y enlace a archivo, commit anterior o revisión: Agreg
 
 ### Semana 9
 
-Mi contribución concreta y enlace a archivo, commit anterior o revisión: Incorporé al repositorio los archivos del paquete que preparó Abraham: el escáner de secretos (`src/lib/security/secrets.ts`), dos pruebas (`tests/unit/secrets.spec.ts`, que comprueba que el repositorio no contiene tokens, claves ni archivos `.env`, y `tests/unit/security-validation.spec.ts`, con casos límite de la validación del servidor) y el ajuste del conteo en `docs/test-strategy.md`. Los leí, los ejecuté y verifiqué que pasan. Enlace al PR: <PEGAR AQUÍ EL ENLACE AL PR>
+Mi contribución concreta y enlace a archivo, commit anterior o revisión: Incorporé al repositorio los archivos del paquete que preparó Abraham: el escáner de secretos (`src/lib/security/secrets.ts`), dos pruebas (`tests/unit/secrets.spec.ts`, que comprueba que el repositorio no contiene tokens, claves ni archivos `.env`, y `tests/unit/security-validation.spec.ts`, con casos límite de la validación del servidor) y el ajuste del conteo en `docs/test-strategy.md`. Los leí, los ejecuté y verifiqué que pasan. Enlace al PR: https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/pull/24
 
-- **Commit SHA:** <PEGAR AQUÍ EL SHA DEL ÚLTIMO COMMIT DE MI PR>
-- **Ejecución de GitHub Actions:** <PEGAR AQUÍ EL ENLACE DE LA EJECUCIÓN DE MI PR>
+- **Commit SHA:** 1220b5110937b55682c2d52b75ff6880bd3757b7
+- **Ejecución de GitHub Actions:** https://github.com/AbrahamMore/pwa-inspecciones-10b-e10/actions/runs/41267644907
 - **Decisión que puedo explicar y por qué:** El escáner informa la regla y la línea donde encontró algo, pero nunca el valor, para no repetir un secreto real en los registros de las pruebas o de Actions. Además, los secretos falsos de las pruebas se arman concatenando texto, para que el archivo de prueba no contenga nada con forma de credencial y el escáner no se marque a sí mismo.
 - **Comando o prueba que ejecuté:** En Linux con Node v20.20.2: `npm ci` y `npm run verify`. También comprobé a mano que el escáner detecta un secreto falso: lo agregué a `README.md`, la prueba falló nombrando `README.md:161` y la regla de clave de AWS, y revertí el cambio con `git restore` antes de commitear.
 - **Resultado real que observé:** `tests/unit (17 archivos)` con `secrets.spec.ts` y `security-validation.spec.ts` en PASS, `22/22 archivos de prueba pasaron`, build de Next.js compilado y `Verificación técnica: pass`. Tras revertir el secreto falso, `secrets.spec.ts` volvió a dar PASS.
