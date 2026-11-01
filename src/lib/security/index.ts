@@ -3,3 +3,4 @@ export * from "./authz";
 export * from "./validation";
 export * from "./headers";
 export * from "./local-data";
+export * from "./secrets";
