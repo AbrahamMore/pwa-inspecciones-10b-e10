@@ -1,0 +1,17 @@
+# Nada de esto debe entrar a la imagen: ni secretos, ni salidas locales, ni historial de Git.
+.git
+.github
+node_modules
+.next
+out
+coverage
+reports
+test-results
+playwright-report
+.env*
+*.log
+*.zip
+evidence
+docs/evidencia-semana8
+Dockerfile
+.dockerignore

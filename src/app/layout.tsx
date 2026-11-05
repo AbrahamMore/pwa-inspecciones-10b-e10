@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { SwRegister } from "../components/sw-register";
 import { SyncProvider } from "../components/sync-provider";
 import { AppNav } from "../components/app-nav";
+import { VersionBadge } from "../components/version-badge";
 
 // Las páginas se generan en cada petición para poder llevar el nonce de la CSP (src/middleware.ts).
 export const dynamic = "force-dynamic";
@@ -29,6 +30,7 @@ export default function RootLayout({
           <AppNav />
           {children}
         </SyncProvider>
+        <VersionBadge />
       </body>
     </html>
   );

@@ -1,3 +1,5 @@
+# El nombre y los artefactos conservan "Semana 8" para no romper los enlaces de entregas anteriores;
+# desde la Semana 10 el workflow también construye la imagen Docker y ejecuta el smoke test.
 name: Evaluación académica — Semana 8
 on:
   push:
@@ -56,6 +58,58 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: week-08-e2e-report
+          if-no-files-found: warn
+          path: |
+            playwright-report/
+            test-results/
+
+  smoke-docker:
+    name: Imagen Docker y smoke test de release
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      IMAGEN: pwa-inspecciones:ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.6'
+          cache: npm
+      - name: Instalación reproducible
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Instalar Chromium para Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Construir la imagen (el SHA del commit queda dentro del artefacto)
+        run: docker build --build-arg APP_COMMIT_SHA="${{ github.sha }}" -t "$IMAGEN" .
+      - name: Arrancar el contenedor
+        run: docker run -d --name pwa -p 3000:3000 "$IMAGEN"
+      - name: Esperar a que el contenedor esté sano
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:3000/api/health; then echo; exit 0; fi
+            sleep 2
+          done
+          echo "El contenedor no respondió a tiempo" >&2
+          docker logs pwa >&2
+          exit 1
+      - name: Smoke test contra el contenedor (compara SHA y versión publicados)
+        env:
+          SMOKE_BASE_URL: http://localhost:3000
+          SMOKE_EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          export SMOKE_EXPECTED_VERSION="$(node -p "JSON.parse(require('fs').readFileSync('package.json','utf8')).version")"
+          npm run smoke
+      - name: Estado del contenedor y registros
+        if: always()
+        run: |
+          docker inspect pwa --format 'estado={{.State.Status}} salud={{if .State.Health}}{{.State.Health.Status}}{{end}}' || true
+          docker logs pwa --tail 50 || true
+      - name: Guardar reporte del smoke test
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: week-10-smoke-report
           if-no-files-found: warn
           path: |
             playwright-report/

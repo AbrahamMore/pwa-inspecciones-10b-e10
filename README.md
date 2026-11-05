@@ -158,3 +158,43 @@ El commit SHA, la ejecución de Actions y la sección individual de cada integra
 - `style-src` no permite estilos en línea en producción; el estilo de `public/offline.html` es en línea y por eso esa página queda fuera del middleware (no ejecuta scripts).
 - Algunas pruebas de seguridad leen el código fuente como texto (por ejemplo, que no haya `dangerouslySetInnerHTML`): son baratas pero frágiles ante refactors.
 - La autenticación real, el límite de peticiones (rate limit) y la persistencia real del servidor siguen fuera de alcance.
+
+## Semana 10 — Release reproducible, smoke test y rollback
+
+- **Proceso completo:** [`docs/release-process.md`](docs/release-process.md) (versión + SHA, pipeline, reproducibilidad, service worker, rollback vs fix-forward, simulación, límites).
+- **Recuperación ante incidentes:** [`docs/runbook.md`](docs/runbook.md).
+- **Artefactos:** `Dockerfile` (3 etapas, Node 20.19.6, usuario no root, `HEALTHCHECK`), `.dockerignore`, `.nvmrc`, `tests/smoke.spec.ts`, `.github/workflows/academic-evaluation.yml` (trabajos `verify`, `e2e` y `smoke-docker`).
+- **Versión publicada:** `GET /api/health` devuelve `{"status":"ok","version":"1.0.0","commit":"<sha completo>"}` y el pie de la app muestra `Versión 1.0.0 · commit <sha corto>`. El SHA se fija al compilar y nunca se escribe en el repositorio.
+
+### Setup, ejecución y verificación
+
+```bash
+node --version                 # 20.19.x (ver .nvmrc)
+npm ci
+npm run verify                 # equivalente: make verify (estructura + pruebas + build)
+npm run build && npm run start # servidor de producción en http://localhost:3000
+```
+
+### Smoke test de release
+
+```bash
+npx playwright install chromium                          # solo la primera vez
+npm run smoke                                            # construye y levanta la app local
+SMOKE_BASE_URL=http://localhost:3000 npm run smoke       # contra una URL ya levantada (Docker, Vercel…)
+SMOKE_BASE_URL=<url> SMOKE_EXPECTED_SHA=<sha> npm run smoke   # además exige que lo publicado sea ese SHA
+```
+
+Comprueba: la URL abre y está sana, la navegación carga, el formulario guarda, sin red conserva el registro y al volver sincroniza una sola vez, la versión es identificable y `sw.js` no tiene caché larga.
+
+### Docker
+
+```bash
+docker build --build-arg APP_COMMIT_SHA=$(git rev-parse HEAD) -t pwa-inspecciones:1.0.0 .
+docker run --rm -p 3000:3000 pwa-inspecciones:1.0.0
+```
+
+La imagen solo empaqueta el servidor: no actualiza los service workers ya instalados en los navegadores. No se configuró un despliegue en Vercel en esta entrega (ver `docs/release-process.md`, §5).
+
+### Evidencia
+
+El commit SHA, la ejecución de Actions y la sección individual de cada integrante están en `evidence/individual.md`.
