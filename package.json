@@ -1,6 +1,6 @@
 {
   "name": "pwa-inspecciones-laboratorio",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,8 +11,9 @@
     "test:security": "node --import tsx tests/security.spec.ts",
     "test:unit": "node scripts/run-tests.mjs tests/unit",
     "test:integration": "node scripts/run-tests.mjs tests/integration",
-    "test:e2e": "playwright test",
-    "verify": "node scripts/verify.mjs"
+    "test:e2e": "playwright test --project=chromium",
+    "verify": "node scripts/verify.mjs",
+    "smoke": "playwright test --project=smoke"
   },
   "dependencies": {
     "next": "14.2.35",
@@ -26,5 +27,8 @@
     "@types/react-dom": "^18.3.0",
     "tsx": "^4.23.13",
     "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   }
 }
